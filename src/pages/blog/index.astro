@@ -18,7 +18,8 @@ const posts = (await getCollection('blog')).sort(
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
 			main {
-				width: 960px;
+				width: 100%;
+				padding: 2rem 0;
 			}
 			ul {
 				display: flex;
@@ -108,8 +109,9 @@ const posts = (await getCollection('blog')).sort(
 	<body>
 		<Header />
 		<main>
-			<section>
-				<ul>
+			<div class="container">
+				<section>
+					<ul>
 					{
 						posts.map((post) => (
 							<li>
@@ -134,8 +136,9 @@ const posts = (await getCollection('blog')).sort(
 							</li>
 						))
 					}
-				</ul>
-			</section>
+					</ul>
+				</section>
+			</div>
 		</main>
 		<Footer />
 	</body>

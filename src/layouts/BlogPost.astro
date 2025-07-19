@@ -16,25 +16,33 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 		<BaseHead title={title} description={description} />
 		<style>
 			main {
-				width: calc(100% - 2em);
+				width: 100%;
 				max-width: 100%;
 				margin: 0;
+				padding: 2rem 0;
 			}
 			.hero-image {
-				width: 100%;
+				max-width: 1200px;
+				margin: 0 auto 2rem auto;
+				padding: 0 1rem;
 			}
 			.hero-image img {
 				display: block;
-				margin: 0 auto;
+				width: 100%;
+				height: auto;
+				margin: 0;
 				border-radius: 12px;
-				box-shadow: var(--box-shadow);
+				max-height: 480px;
+				object-fit: cover;
+				object-position: center;
 			}
 			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
+				background: white;
+				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
+				border-radius: 12px;
+				padding: 2rem;
 				color: rgb(var(--secondary-dark));
+				margin-bottom: 2rem;
 			}
 			.title {
 				margin-bottom: 1em;
@@ -71,43 +79,71 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 				background: rgb(var(--secondary-dark));
 				transform: translateY(-1px);
 			}
+			@media (max-width: 1199px) {
+				.prose {
+					padding: 1.5rem;
+				}
+			}
+			@media (max-width: 767px) {
+				main {
+					padding: 1rem 0;
+				}
+				.prose {
+					padding: 1rem;
+					margin-bottom: 1rem;
+				}
+				.hero-image {
+					margin-bottom: 1rem;
+				}
+				.hero-image img {
+					max-height: 300px;
+				}
+			}
 		</style>
 	</head>
 
 	<body>
 		<Header />
 		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
+			<div class="hero-image">
+				{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
+			</div>
+			<div class="container">
+				<div class="grid">
+					<div class="col-1 col-lg-1 col-sm-12"></div>
+					<article class="col-8 col-lg-10 col-sm-12">
+						<div class="prose">
+							<div class="title">
+								<div class="date">
+									<FormattedDate date={pubDate} />
+									{
+										updatedDate && (
+											<div class="last-updated-on">
+												Last updated on <FormattedDate date={updatedDate} />
+											</div>
+										)
+									}
+								</div>
+								<h1>{title}</h1>
+								{tags && tags.length > 0 && (
+									<div class="tags">
+										{tags.map(tag => (
+											<a href={`/tags/${tag}/`} class="tag">
+												{tag}
+											</a>
+										))}
 									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						{tags && tags.length > 0 && (
-							<div class="tags">
-								{tags.map(tag => (
-									<a href={`/tags/${tag}/`} class="tag">
-										{tag}
-									</a>
-								))}
+								)}
+								<hr />
 							</div>
-						)}
-						<hr />
-					</div>
-					<slot />
+							<slot />
+						</div>
+					</article>
+					<aside class="col-3 col-lg-1 col-sm-12">
+						<!-- Future sidebar content -->
+					</aside>
 				</div>
-			</article>
+			</div>
 		</main>
 		<Footer />
 	</body>
