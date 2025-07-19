@@ -60,11 +60,30 @@ const posts = (await getCollection('blog')).sort(
 			}
 			.date {
 				margin: 0;
-				color: rgb(var(--gray));
+				color: rgb(var(--secondary));
+			}
+			.tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				margin-top: 0.5rem;
+			}
+			.tag {
+				background: var(--primary-dark);
+				color: white;
+				padding: 0.25rem 0.5rem;
+				border-radius: 12px;
+				font-size: 0.7rem;
+				text-decoration: none;
+				transition: all 0.2s ease;
+			}
+			.tag:hover {
+				background: rgb(var(--secondary-dark));
+				transform: translateY(-1px);
 			}
 			ul li a:hover h4,
 			ul li a:hover .date {
-				color: rgb(var(--accent));
+				color: rgb(var(--primary));
 			}
 			ul a:hover img {
 				box-shadow: var(--box-shadow);
@@ -102,6 +121,15 @@ const posts = (await getCollection('blog')).sort(
 									<p class="date">
 										<FormattedDate date={post.data.pubDate} />
 									</p>
+									{post.data.tags && post.data.tags.length > 0 && (
+										<div class="tags">
+											{post.data.tags.map(tag => (
+												<a href={`/tags/${tag}/`} class="tag" onclick="event.stopPropagation()">
+													{tag}
+												</a>
+											))}
+										</div>
+									)}
 								</a>
 							</li>
 						))

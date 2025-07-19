@@ -1,0 +1,87 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))].sort();
+
+// Count posts for each tag
+const tagCounts = allTags.reduce((acc, tag) => {
+  acc[tag] = posts.filter(post => post.data.tags?.includes(tag)).length;
+  return acc;
+}, {} as Record<string, number>);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`Tags - ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+		<style>
+			main {
+				width: 960px;
+				max-width: calc(100% - 2em);
+				margin: auto;
+				padding: 1em;
+			}
+			.tags-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+				gap: 1rem;
+				margin-top: 2rem;
+			}
+			.tag-card {
+				background: rgb(var(--secondary-light));
+				border-radius: 8px;
+				padding: 1.5rem;
+				text-decoration: none;
+				color: rgb(var(--black));
+				transition: all 0.2s ease;
+				border: 1px solid rgb(var(--secondary-light));
+			}
+			.tag-card:hover {
+				background: rgb(var(--secondary-lighter));
+				border-color: rgb(var(--primary));
+				transform: translateY(-2px);
+			}
+			.tag-name {
+				font-size: 1.2rem;
+				font-weight: bold;
+				margin-bottom: 0.5rem;
+			}
+			.tag-count {
+				color: rgb(var(--secondary));
+				font-size: 0.9rem;
+			}
+			.page-title {
+				text-align: center;
+				margin-bottom: 2rem;
+			}
+			.page-description {
+				text-align: center;
+				color: rgb(var(--secondary));
+				margin-bottom: 2rem;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1 class="page-title">Tags</h1>
+			<p class="page-description">Browse posts by tags</p>
+			<div class="tags-grid">
+				{allTags.map(tag => (
+					<a href={`/tags/${tag}/`} class="tag-card">
+						<div class="tag-name">{tag}</div>
+						<div class="tag-count">
+							{tagCounts[tag]} {tagCounts[tag] === 1 ? 'post' : 'posts'}
+						</div>
+					</a>
+				))}
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>
