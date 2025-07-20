@@ -48,20 +48,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 #### ブログ一覧ページ（`src/pages/blog/index.astro`）
 - CSS Gridを使用したカードベースのレスポンシブレイアウト
-- フィーチャーカード：最初の投稿を全幅で強調表示
+- 全記事が統一されたカードサイズで表示
 - ホバーエフェクト：カードの浮き上がりと画像のズーム効果
 - タグデザイン：`var(--primary-dark)`を使用し、統一されたスタイル
 
-#### 色とスタイリング
-- `src/styles/global.css`で定義されたCSS変数を使用
-- 主要色：`--primary`, `--primary-dark`, `--secondary`, `--secondary-light`
-- シャドウ：`--box-shadow`変数で統一されたドロップシャドウ
-- ブログ一覧と記事ページでタグデザインを統一
+#### 色システム（`src/styles/global.css`）
+- **必須**: 全ての色指定はCSS変数を使用すること
+- **利用可能な色変数**:
+  - `--primary: #2337ff` - プライマリ色
+  - `--primary-dark: #000d8a` - 濃いプライマリ色
+  - `--black: 15, 18, 25` - テキスト黒色（RGB値）
+  - `--white: 255, 255, 255` - 白色（RGB値）
+  - `--secondary: 96, 115, 159` - セカンダリ色（RGB値）
+  - `--secondary-light: 229, 233, 240` - 薄いセカンダリ色（RGB値）
+  - `--secondary-dark: 34, 41, 57` - 濃いセカンダリ色（RGB値）
+- **シャドウ**: `--box-shadow`変数で統一されたドロップシャドウ
+- **使用例**: `color: rgb(var(--white))`, `background: var(--primary-dark)`
 
 #### レスポンシブデザイン
 - デスクトップ：auto-fitグリッドレイアウト（最小350px）
 - モバイル（768px以下）：1カラムレイアウト
-- フィーチャーカードは画像高さとパディングを調整
+- 全デバイスで統一されたカードサイズ
 
 ### 注意事項
 
