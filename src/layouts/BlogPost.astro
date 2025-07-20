@@ -1,14 +1,18 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import TableOfContents from '../components/TableOfContents.astro';
 import { Image } from 'astro:assets';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = CollectionEntry<'blog'>['data'] & {
+	headings: MarkdownHeading[];
+};
 
-const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags, headings } = Astro.props;
 ---
 
 <html lang="en">
@@ -112,8 +116,8 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 			</div>
 			<div class="container">
 				<div class="grid">
-					<div class="col-1 col-lg-1 col-sm-12"></div>
-					<article class="col-8 col-lg-10 col-sm-12">
+					<div class="col-1 col-md-0 col-sm-12"></div>
+					<article class="col-8 col-md-9 col-sm-12">
 						<div class="prose">
 							<div class="title">
 								<div class="date">
@@ -141,8 +145,8 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 							<slot />
 						</div>
 					</article>
-					<aside class="col-3 col-lg-1 col-sm-12">
-						<!-- Future sidebar content -->
+					<aside class="col-3 col-md-3 col-sm-12">
+						<TableOfContents headings={headings} />
 					</aside>
 				</div>
 			</div>

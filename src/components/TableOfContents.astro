@@ -1,0 +1,429 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+	headings?: MarkdownHeading[];
+	heading?: NestedHeading;
+}
+
+interface NestedHeading extends MarkdownHeading {
+	children: NestedHeading[];
+}
+
+const { headings = [] } = Astro.props;
+
+// H2とH3のみを対象とする
+const filteredHeadings = headings.filter(heading => heading.depth === 2 || heading.depth === 3);
+
+// 見出しを階層構造に変換
+function buildHierarchy(headings: MarkdownHeading[]): NestedHeading[] {
+	const hierarchy: NestedHeading[] = [];
+	const stack: NestedHeading[] = [];
+
+	for (const heading of headings) {
+		const nestedHeading: NestedHeading = { ...heading, children: [] };
+
+		// 現在の見出しより深い階層をスタックから削除
+		while (stack.length > 0 && stack[stack.length - 1].depth >= heading.depth) {
+			stack.pop();
+		}
+
+		// 親が存在する場合は子として追加、そうでなければルートに追加
+		if (stack.length === 0) {
+			hierarchy.push(nestedHeading);
+		} else {
+			stack[stack.length - 1].children.push(nestedHeading);
+		}
+
+		stack.push(nestedHeading);
+	}
+
+	return hierarchy;
+}
+
+const nestedHeadings = buildHierarchy(filteredHeadings);
+
+// 再帰コンポーネント用の型定義
+const TableOfContentsHeading = Astro.self;
+---
+
+{nestedHeadings.length > 0 && (
+	<nav class="table-of-contents" aria-label="目次">
+		<div class="toc-header">
+			<h3 class="toc-title">目次</h3>
+			<button 
+				class="toc-toggle" 
+				aria-expanded="true" 
+				aria-controls="toc-list"
+				data-toc-toggle
+			>
+				<span class="toc-toggle-icon"></span>
+			</button>
+		</div>
+		<ul class="toc-list" id="toc-list" data-toc-list>
+			{nestedHeadings.map((heading) => (
+				<TableOfContentsHeading heading={heading} />
+			))}
+		</ul>
+	</nav>
+)}
+
+{Astro.props.heading && (
+	<li class={`toc-item toc-depth-${Astro.props.heading.depth}`}>
+		<a 
+			href={`#${Astro.props.heading.slug}`} 
+			class="toc-link"
+			data-toc-link={Astro.props.heading.slug}
+		>
+			{Astro.props.heading.text}
+		</a>
+		{Astro.props.heading.children && Astro.props.heading.children.length > 0 && (
+			<ul class="toc-sublist">
+				{Astro.props.heading.children.map((child: NestedHeading) => (
+					<TableOfContentsHeading heading={child} />
+				))}
+			</ul>
+		)}
+	</li>
+)}
+
+<style>
+	.table-of-contents {
+		background: var(--primary-background);
+		border-radius: 12px;
+		box-shadow: var(--box-shadow);
+		padding: 1.5rem;
+		position: sticky;
+		top: 2rem;
+		max-height: calc(100vh - 4rem);
+		overflow-y: auto;
+	}
+
+	.toc-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1rem;
+		border-bottom: 1px solid oklch(90% 0.01 262);
+		padding-bottom: 0.75rem;
+	}
+
+	.toc-title {
+		margin: 0;
+		font-size: 1.1rem;
+		font-weight: 600;
+		color: var(--primary-foreground);
+	}
+
+	.toc-toggle {
+		display: none;
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0.5rem;
+		border-radius: 4px;
+		transition: background-color 0.2s ease;
+	}
+
+	.toc-toggle:hover {
+		background: oklch(92% 0.01 262);
+	}
+
+	.toc-toggle-icon {
+		display: block;
+		width: 1rem;
+		height: 1rem;
+		position: relative;
+	}
+
+	.toc-toggle-icon::before,
+	.toc-toggle-icon::after {
+		content: '';
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: 12px;
+		height: 2px;
+		background: var(--primary-foreground);
+		border-radius: 1px;
+		transition: transform 0.2s ease;
+	}
+
+	.toc-toggle-icon::before {
+		transform: translate(-50%, -50%) rotate(0deg);
+	}
+
+	.toc-toggle-icon::after {
+		transform: translate(-50%, -50%) rotate(90deg);
+	}
+
+	/* 折りたたんでいるとき（aria-expanded="false"）はプラス（+）を表示 */
+	.toc-toggle[aria-expanded="false"] .toc-toggle-icon::after {
+		transform: translate(-50%, -50%) rotate(90deg);
+	}
+
+	/* 開いているとき（aria-expanded="true"）はマイナス（-）を表示 */
+	.toc-toggle[aria-expanded="true"] .toc-toggle-icon::after {
+		transform: translate(-50%, -50%) rotate(0deg);
+	}
+
+	.toc-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.toc-sublist {
+		list-style: none;
+		margin: 0.25rem 0 0 0;
+		padding: 0;
+		position: relative;
+	}
+
+	.toc-item {
+		margin-bottom: 0.3rem;
+		position: relative;
+	}
+
+	.toc-sublist .toc-item {
+		margin-bottom: 0.2rem;
+	}
+
+	.toc-item:last-child {
+		margin-bottom: 0;
+	}
+
+
+	.toc-link {
+		display: flex;
+		align-items: center;
+		color: var(--primary-foreground);
+		text-decoration: none;
+		padding: 0.25rem 0 0.25rem 1rem;
+		font-size: 0.875rem;
+		line-height: 1.5;
+		transition: all 0.2s ease;
+		position: relative;
+	}
+
+	.toc-link::before {
+		content: '';
+		border-radius: 50%;
+		flex-shrink: 0;
+		transition: background-color 0.2s ease;
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+	}
+
+	.toc-link:hover {
+		color: var(--primary);
+	}
+
+	.toc-link.active {
+		color: var(--primary);
+		font-weight: 500;
+	}
+
+
+	/* H2の丸（大・青） */
+	.toc-depth-2 > .toc-link::before {
+		width: 8px;
+		height: 8px;
+		background: var(--primary);
+		left: 0px;
+	}
+
+	/* H3の丸（小・薄い青） */
+	.toc-depth-3 > .toc-link::before {
+		width: 4px;
+		height: 4px;
+		background: var(--primary-light);
+		left: 2px;
+	}
+
+	/* タブレット対応（目次は固定のまま） */
+	@media (max-width: 991px) and (min-width: 768px) {
+		.table-of-contents {
+			position: sticky;
+			top: 2rem;
+			max-height: calc(100vh - 4rem);
+		}
+
+		.toc-toggle {
+			display: none;
+		}
+	}
+
+	/* モバイル対応（右下固定表示） */
+	@media (max-width: 767px) {
+		.table-of-contents {
+			position: fixed;
+			bottom: 2rem;
+			right: 2rem;
+			top: auto;
+			max-height: 70vh;
+			width: 280px;
+			z-index: 1000;
+			margin-bottom: 0;
+			padding: 1rem;
+			box-shadow: 0 4px 20px oklch(12% 0.02 262 / 0.3);
+		}
+
+		.toc-toggle {
+			display: block;
+		}
+
+		.toc-list[data-collapsed="true"] {
+			display: none;
+		}
+
+		.toc-title {
+			font-size: 1rem;
+		}
+
+		.toc-link {
+			font-size: 0.8rem;
+		}
+
+		/* 初期状態で折りたたみ */
+		.toc-list {
+			max-height: 300px;
+			overflow-y: auto;
+		}
+	}
+</style>
+
+<script>
+	// 目次の折りたたみ機能と階層構造の初期化
+	function initTableOfContents() {
+		const toggleButton = document.querySelector('[data-toc-toggle]') as HTMLButtonElement;
+		const tocList = document.querySelector('[data-toc-list]') as HTMLElement;
+
+		if (!toggleButton || !tocList) return;
+
+		// 子項目がある親項目にクラスを追加
+		const parentItems = document.querySelectorAll('.toc-depth-2');
+		parentItems.forEach(item => {
+			const sublist = item.querySelector('.toc-sublist');
+			if (sublist && sublist.children.length > 0) {
+				item.classList.add('has-children');
+			}
+		});
+
+		toggleButton.addEventListener('click', () => {
+			const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+			toggleButton.setAttribute('aria-expanded', String(!isExpanded));
+			tocList.setAttribute('data-collapsed', String(isExpanded));
+		});
+
+		// モバイルでは初期状態で折りたたみ
+		const isMobile = window.innerWidth <= 767;
+		if (isMobile) {
+			toggleButton.setAttribute('aria-expanded', 'false');
+			tocList.setAttribute('data-collapsed', 'true');
+		}
+
+		// リサイズ時の対応
+		window.addEventListener('resize', () => {
+			const isCurrentlyMobile = window.innerWidth <= 767;
+			if (isCurrentlyMobile) {
+				toggleButton.setAttribute('aria-expanded', 'false');
+				tocList.setAttribute('data-collapsed', 'true');
+			} else {
+				toggleButton.setAttribute('aria-expanded', 'true');
+				tocList.setAttribute('data-collapsed', 'false');
+			}
+		});
+	}
+
+	// アクティブ見出し追跡機能
+	function initActiveHeadingTracking() {
+		const tocLinks = document.querySelectorAll('[data-toc-link]') as NodeListOf<HTMLAnchorElement>;
+		const headings = Array.from(tocLinks).map(link => {
+			const slug = link.getAttribute('data-toc-link');
+			return document.getElementById(slug || '');
+		}).filter(Boolean) as HTMLElement[];
+
+		if (headings.length === 0) return;
+
+		function updateActiveHeading() {
+			const scrollTop = window.scrollY + 100; // 100pxのオフセット
+			let activeHeading: HTMLElement | null = null;
+
+			// 現在のスクロール位置より上にある最後の見出しを見つける
+			for (let i = headings.length - 1; i >= 0; i--) {
+				const heading = headings[i];
+				if (heading.offsetTop <= scrollTop) {
+					activeHeading = heading;
+					break;
+				}
+			}
+
+			// 見つからない場合は最初の見出しをアクティブにする
+			if (!activeHeading && headings.length > 0) {
+				activeHeading = headings[0];
+			}
+
+			// 全てのリンクからactiveクラスを削除
+			tocLinks.forEach(link => link.classList.remove('active'));
+
+			// アクティブな見出しのリンクにactiveクラスを追加
+			if (activeHeading) {
+				const activeLink = document.querySelector(`[data-toc-link="${activeHeading.id}"]`);
+				activeLink?.classList.add('active');
+			}
+		}
+
+		// 初期実行
+		updateActiveHeading();
+
+		// スクロールイベントでリアルタイム更新
+		let ticking = false;
+		function onScroll() {
+			if (!ticking) {
+				requestAnimationFrame(() => {
+					updateActiveHeading();
+					ticking = false;
+				});
+				ticking = true;
+			}
+		}
+
+		window.addEventListener('scroll', onScroll);
+	}
+
+	// スムーズスクロール
+	function initSmoothScroll() {
+		const tocLinks = document.querySelectorAll('[data-toc-link]') as NodeListOf<HTMLAnchorElement>;
+		
+		tocLinks.forEach(link => {
+			link.addEventListener('click', (e) => {
+				e.preventDefault();
+				const targetId = link.getAttribute('data-toc-link');
+				const targetElement = document.getElementById(targetId || '');
+				
+				if (targetElement) {
+					targetElement.scrollIntoView({
+						behavior: 'smooth',
+						block: 'start'
+					});
+				}
+			});
+		});
+	}
+
+	// ページ読み込み時とナビゲーション時に実行
+	document.addEventListener('DOMContentLoaded', () => {
+		initTableOfContents();
+		initActiveHeadingTracking();
+		initSmoothScroll();
+	});
+
+	// Astroのナビゲーション後にも実行
+	document.addEventListener('astro:page-load', () => {
+		initTableOfContents();
+		initActiveHeadingTracking();
+		initSmoothScroll();
+	});
+</script>
