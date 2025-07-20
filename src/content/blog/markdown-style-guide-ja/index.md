@@ -2,6 +2,7 @@
 title: 'Markdownスタイルガイド'
 description: 'AstroでMarkdownコンテンツを書く際に使用できる基本的なMarkdown記法のサンプルです。'
 pubDate: 'Jun 19 2025'
+updatedDate: 'Jun 20 2025'
 heroImage: './hero.jpg'
 tags: ['markdown', 'ガイド', 'ドキュメント']
 ---

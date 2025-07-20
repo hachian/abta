@@ -44,7 +44,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - MCPのPlaywrightツールを使用してE2Eテストを実行
 - `npm run dev`でサーバー起動後、Playwrightでブラウザテストが可能
 
-### デザインシステム
+### 日本語最適化デザインシステム
+
+#### 言語・ローカライゼーション設定
+- **言語設定**: 全HTMLファイルで`lang="ja"`を使用
+- **日付フォーマット**: ja-JP（YYYY/M/D形式）で統一
+- **UI文言**: 日本語化済み（例：「最終更新:」等）
+
+#### 日本語タイポグラフィ（`src/styles/global.css`）
+- **フォントファミリー**: `'Noto Sans JP', 'Atkinson', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif`
+- **Google Fonts**: Noto Sans JPを`src/components/BaseHead.astro`で読み込み
+- **本文フォントサイズ**: `clamp(16px, 2.5vw, 18px)`（レスポンシブ）
+- **行間**: 1.8（日本語最適化）
+- **見出しサイズ**: h1(2em) → h2(1.8em) → h3(1.6em) → h4(1.4em) → h5(1.3em) → h6(1.2em)
+
+#### 日本語UI最適化
+- **イタリック回避**: `em`, `i`要素を下線表示（`text-decoration: underline`）に変更
+- **太字強調**: `strong`, `b`要素にプライマリカラー適用
+- **インラインコード**: ダーク背景（`--primary-dark`）・明るい文字（`--primary-background`）
+- **コードブロック**: 90%サイズ（`0.9em`）
+- **引用ブロック**: 95%サイズ（`0.95em`）・行間1.6
 
 #### ブログ一覧ページ（`src/pages/blog/index.astro`）
 - CSS Gridを使用したカードベースのレスポンシブレイアウト
@@ -83,9 +102,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Large：左サイドバーに表示
   - Middle以下：記事下部に表示
 
+### コンテンツ管理
+
+#### 日本語記事サンプル
+- `src/content/blog/markdown-style-guide-ja/`: 日本語Markdownスタイルガイド
+- 日本語記事作成時の参考として活用
+- 見出し、段落、リスト、コード、引用等の記法例を提供
+
 ### 注意事項
 
 - 現在テスト、リント、フォーマッター設定なし
 - サイトURLは`https://example.com`のままなので変更が必要
 - 画像最適化にSharpを使用
-- デザイン変更時は既存のCSS変数を使用し、新しい色は定義しない
+- **デザイン変更時は既存のCSS変数を使用し、新しい色は定義しない**
+- **日本語サイトとして最適化済み - 言語設定やフォント変更時は注意**
