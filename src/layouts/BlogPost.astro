@@ -37,11 +37,11 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 				object-position: center;
 			}
 			.prose {
-				background: rgb(var(--white));
+				background: var(--white);
 				box-shadow: var(--box-shadow);
 				border-radius: 12px;
 				padding: 2rem;
-				color: rgb(var(--secondary-dark));
+				color: var(--secondary-dark);
 				margin-bottom: 2rem;
 			}
 			.title {
@@ -55,7 +55,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 			}
 			.date {
 				margin-bottom: 0.5em;
-				color: rgb(var(--secondary));
+				color: var(--secondary);
 			}
 			.last-updated-on {
 				font-style: italic;
@@ -68,7 +68,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 			}
 			.tag {
 				background: var(--primary-dark);
-				color: rgb(var(--white));
+				color: var(--white);
 				padding: 0.25rem 0.75rem;
 				border-radius: 20px;
 				font-size: 0.75rem;
