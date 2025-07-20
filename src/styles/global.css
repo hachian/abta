@@ -7,15 +7,11 @@
 :root {
 	--primary: oklch(45% 0.25 262);
 	--primary-dark: oklch(25% 0.22 262);
-	--black: oklch(12% 0.02 262);
-	--white: oklch(97% 0.01 262);
-	--secondary: oklch(55% 0.08 310);
-	--secondary-light: oklch(92% 0.02 310);
-	--secondary-dark: oklch(25% 0.05 310);
-	--secondary-gradient: oklch(92% 0.02 310 / 0.5), var(--white);
+	--primary-foreground: oklch(12% 0.02 262);
+	--primary-background: oklch(97% 0.01 262);
 	--box-shadow:
-		0 2px 6px oklch(55% 0.08 310 / 0.25), 0 8px 24px oklch(55% 0.08 310 / 0.33),
-		0 16px 32px oklch(55% 0.08 310 / 0.33);
+		0 2px 6px oklch(12% 0.02 262 / 0.15), 0 8px 24px oklch(12% 0.02 262 / 0.25),
+		0 16px 32px oklch(12% 0.02 262 / 0.25);
 }
 @font-face {
 	font-family: 'Atkinson';
@@ -36,10 +32,10 @@ body {
 	margin: 0;
 	padding: 0;
 	text-align: left;
-	background: var(--secondary-light);
+	background: var(--primary-background);
 	word-wrap: break-word;
 	overflow-wrap: break-word;
-	color: var(--secondary-dark);
+	color: var(--primary-foreground);
 	font-size: 20px;
 	line-height: 1.7;
 }
@@ -56,7 +52,7 @@ h4,
 h5,
 h6 {
 	margin: 0 0 0.5rem 0;
-	color: var(--black);
+	color: var(--primary-foreground);
 	line-height: 1.2;
 }
 h1 {
@@ -107,7 +103,7 @@ img {
 }
 code {
 	padding: 2px 5px;
-	background-color: var(--secondary-light);
+	background-color: var(--primary-background);
 	border-radius: 2px;
 }
 pre {
@@ -125,7 +121,7 @@ blockquote {
 }
 hr {
 	border: none;
-	border-top: 1px solid var(--secondary-light);
+	border-top: 1px solid var(--primary-background);
 }
 @media (max-width: 720px) {
 	body {

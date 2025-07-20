@@ -57,14 +57,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **利用可能な色変数**:
   - `--primary: oklch(45% 0.25 262)` - プライマリ色（青系）
   - `--primary-dark: oklch(25% 0.22 262)` - 濃いプライマリ色
-  - `--black: oklch(12% 0.02 260)` - テキスト黒色
-  - `--white: oklch(97% 0.01 85)` - オフホワイト色（温かみのある白）
-  - `--secondary: oklch(55% 0.08 245)` - セカンダリ色（グレー系）
-  - `--secondary-light: oklch(92% 0.02 245)` - 薄いセカンダリ色
-  - `--secondary-dark: oklch(25% 0.05 245)` - 濃いセカンダリ色
+  - `--primary-foreground: oklch(12% 0.02 262)` - 前景色（テキスト等）
+  - `--primary-background: oklch(97% 0.01 262)` - 背景色（コンテンツ背景等）
 - **シャドウ**: `--box-shadow`変数で統一されたドロップシャドウ
-- **使用例**: `color: var(--white)`, `background: var(--primary-dark)`
+- **使用例**: `color: var(--primary-foreground)`, `background: var(--primary-background)`
 - **OKLCH**: L（明度0-100%）、C（彩度）、H（色相角度）による知覚的に均一な色空間
+- **設計思想**: プライマリ系色のみを使用したミニマルなカラーシステム
 
 #### レスポンシブデザイン
 - デスクトップ：auto-fitグリッドレイアウト（最小350px）

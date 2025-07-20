@@ -33,16 +33,16 @@ const tagCounts = allTags.reduce((acc, tag) => {
 				margin-top: 2rem;
 			}
 			.tag-card {
-				background: var(--secondary-light);
+				background: var(--primary-background);
 				border-radius: 8px;
 				padding: 1.5rem;
 				text-decoration: none;
-				color: var(--black);
+				color: var(--primary-foreground);
 				transition: all 0.2s ease;
-				border: 1px solid var(--secondary-light);
+				border: 1px solid var(--primary-background);
 			}
 			.tag-card:hover {
-				background: var(--secondary-lighter);
+				background: oklch(94% 0.01 262);
 				border-color: var(--primary);
 				transform: translateY(-2px);
 			}
@@ -52,7 +52,7 @@ const tagCounts = allTags.reduce((acc, tag) => {
 				margin-bottom: 0.5rem;
 			}
 			.tag-count {
-				color: var(--secondary);
+				color: var(--primary-foreground);
 				font-size: 0.9rem;
 			}
 			.page-title {
@@ -61,7 +61,7 @@ const tagCounts = allTags.reduce((acc, tag) => {
 			}
 			.page-description {
 				text-align: center;
-				color: var(--secondary);
+				color: var(--primary-foreground);
 				margin-bottom: 2rem;
 			}
 		</style>

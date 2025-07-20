@@ -18,7 +18,7 @@ const posts = (await getCollection('blog')).sort(
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
 			body {
-				background: var(--secondary-light);
+				background: var(--primary-background);
 				min-height: 100vh;
 			}
 			
@@ -43,7 +43,7 @@ const posts = (await getCollection('blog')).sort(
 			}
 			
 			.card {
-				background: var(--white);
+				background: var(--primary-background);
 				border-radius: 16px;
 				box-shadow: var(--box-shadow);
 				transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -85,7 +85,7 @@ const posts = (await getCollection('blog')).sort(
 			
 			.title {
 				margin: 0 0 0.75rem 0;
-				color: var(--black);
+				color: var(--primary-foreground);
 				line-height: 1.4;
 				font-size: 1.25rem;
 				font-weight: 600;
@@ -93,7 +93,7 @@ const posts = (await getCollection('blog')).sort(
 			
 			.date {
 				margin: 0 0 1rem 0;
-				color: var(--secondary);
+				color: var(--primary-foreground);
 				font-size: 0.875rem;
 			}
 			
@@ -106,7 +106,7 @@ const posts = (await getCollection('blog')).sort(
 			
 			.tag {
 				background: var(--primary-dark);
-				color: var(--white);
+				color: var(--primary-background);
 				padding: 0.25rem 0.75rem;
 				border-radius: 20px;
 				font-size: 0.75rem;
