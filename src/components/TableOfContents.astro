@@ -171,6 +171,7 @@ const TableOfContentsHeading = Astro.self;
 		list-style: none;
 		margin: 0;
 		padding: 0;
+		position: relative;
 	}
 
 	.toc-sublist {
@@ -191,6 +192,18 @@ const TableOfContentsHeading = Astro.self;
 
 	.toc-item:last-child {
 		margin-bottom: 0;
+	}
+
+	/* 縦線の表示 */
+	.toc-list::before {
+		content: '';
+		position: absolute;
+		left: 4px;
+		top: calc(0.5em + 12px);
+		bottom: calc(0.5em + 12px);
+		width: 1px;
+		background: oklch(85% 0.02 262);
+		z-index: 0;
 	}
 
 
@@ -214,6 +227,7 @@ const TableOfContentsHeading = Astro.self;
 		position: absolute;
 		top: 50%;
 		transform: translateY(-50%);
+		z-index: 1;
 	}
 
 	.toc-link:hover {
