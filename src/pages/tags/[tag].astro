@@ -75,11 +75,12 @@ const { posts } = Astro.props;
 			
 			ul {
 				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+				grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 				gap: 2rem;
 				list-style-type: none;
 				margin: 0;
 				padding: 0;
+				justify-content: start;
 			}
 			
 			.card {
@@ -144,7 +145,7 @@ const { posts } = Astro.props;
 			}
 			
 			.date {
-				margin: 0 0 0.5rem 0;
+				margin: 0 0 1rem 0;
 				color: var(--primary-foreground);
 				font-size: 0.875rem;
 				display: flex;
@@ -165,10 +166,28 @@ const { posts } = Astro.props;
 				flex-shrink: 0;
 			}
 			
-			.description {
-				color: var(--primary-foreground);
-				font-size: 0.9rem;
-				line-height: 1.5;
+			.tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				margin-top: 1rem;
+			}
+			
+			.tag {
+				background: var(--primary-dark);
+				color: var(--primary-background);
+				padding: 0.25rem 0.75rem;
+				border-radius: 20px;
+				font-size: 0.75rem;
+				text-decoration: none;
+				transition: all 0.2s ease;
+				font-weight: 500;
+			}
+			
+			.tag:hover {
+				background: var(--primary);
+				transform: translateY(-2px);
+				box-shadow: var(--box-shadow);
 			}
 			
 			.back-link {
@@ -248,8 +267,14 @@ const { posts } = Astro.props;
 												</div>
 											)}
 										</div>
-										{post.data.description && (
-											<p class="description">{post.data.description}</p>
+										{post.data.tags && post.data.tags.length > 0 && (
+											<div class="tags">
+												{post.data.tags.map(otherTag => (
+													<a href={`/tags/${otherTag}/`} class="tag" onclick="(e) => e.stopPropagation()">
+														{otherTag}
+													</a>
+												))}
+											</div>
 										)}
 									</div>
 								</a>

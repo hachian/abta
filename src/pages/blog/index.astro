@@ -35,11 +35,12 @@ const posts = (await getCollection('blog')).sort(
 			
 			ul {
 				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+				grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 				gap: 2rem;
 				list-style-type: none;
 				margin: 0;
 				padding: 0;
+				justify-content: start;
 			}
 			
 			.card {

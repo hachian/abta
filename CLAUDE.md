@@ -65,11 +65,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **コードブロック**: 90%サイズ（`0.9em`）
 - **引用ブロック**: 95%サイズ（`0.95em`）・行間1.6
 
-#### ブログ一覧ページ（`src/pages/blog/index.astro`）
+#### ブログ一覧ページ（`src/pages/blog/index.astro`）とタグページ（`src/pages/tags/[tag].astro`）
 - CSS Gridを使用したカードベースのレスポンシブレイアウト
+- **グリッド設定**: `repeat(auto-fill, minmax(350px, 1fr))`で左寄せ配置
+- **カード一貫性**: ブログ一覧とタグページで完全に統一されたカードデザイン
 - 全記事が統一されたカードサイズで表示
 - ホバーエフェクト：カードの浮き上がりと画像のズーム効果
 - タグデザイン：`var(--primary-dark)`を使用し、統一されたスタイル
+- **タグページ特徴**: 
+  - ページヘッダーにタグバッジ、タイトル、記事件数を表示
+  - 「すべてのタグ」への戻りリンク
+  - カード内にタグ表示（ブログ一覧と同様）
 
 #### 色システム（`src/styles/global.css`）
 - **必須**: 全ての色指定はOKLCH色空間のCSS変数を使用すること
@@ -84,9 +90,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **設計思想**: プライマリ系色のみを使用したミニマルなカラーシステム
 
 #### レスポンシブデザイン
-- デスクトップ：auto-fitグリッドレイアウト（最小350px）
+- デスクトップ：auto-fillグリッドレイアウト（最小350px、左寄せ）
 - モバイル（768px以下）：1カラムレイアウト
 - 全デバイスで統一されたカードサイズ
+- **グリッド左寄せ**: `justify-content: start`で2つのカードでも左から配置
 
 #### ブログ記事ページ（`src/layouts/BlogPost.astro`）
 - **レイアウト構造**:
