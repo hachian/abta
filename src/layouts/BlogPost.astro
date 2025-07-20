@@ -69,15 +69,17 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 			.tag {
 				background: var(--primary-dark);
 				color: white;
-				padding: 0.5rem 1rem;
+				padding: 0.25rem 0.75rem;
 				border-radius: 20px;
-				font-size: 0.8rem;
+				font-size: 0.75rem;
 				text-decoration: none;
 				transition: all 0.2s ease;
+				font-weight: 500;
 			}
 			.tag:hover {
-				background: rgb(var(--secondary-dark));
-				transform: translateY(-1px);
+				background: var(--primary);
+				transform: translateY(-2px);
+				box-shadow: var(--box-shadow);
 			}
 			@media (max-width: 1199px) {
 				.prose {
