@@ -121,6 +121,17 @@ const posts = (await getCollection('blog')).sort(
 				box-shadow: var(--box-shadow);
 			}
 			
+			@media (min-width: 768px) and (max-width: 1279px) {
+				.card {
+					max-width: 500px;
+				}
+			}
+			
+			@media (min-width: 1280px) {
+				.card {
+					max-width: 400px;
+				}
+			}
 			
 			@media (max-width: 768px) {
 				ul {
