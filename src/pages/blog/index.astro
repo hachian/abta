@@ -121,22 +121,6 @@ const posts = (await getCollection('blog')).sort(
 				box-shadow: var(--box-shadow);
 			}
 			
-			.featured-card {
-				grid-column: 1 / -1;
-			}
-			
-			.featured-card .card-image {
-				height: 300px;
-			}
-			
-			.featured-card .title {
-				font-size: 2rem;
-				margin-bottom: 1rem;
-			}
-			
-			.featured-card .card-content {
-				padding: 2rem;
-			}
 			
 			@media (max-width: 768px) {
 				ul {
@@ -144,20 +128,8 @@ const posts = (await getCollection('blog')).sort(
 					gap: 1.5rem;
 				}
 				
-				.featured-card .title {
-					font-size: 1.5rem;
-				}
-				
-				.featured-card .card-image {
-					height: 200px;
-				}
-				
 				.card-content {
 					padding: 1rem;
-				}
-				
-				.featured-card .card-content {
-					padding: 1.5rem;
 				}
 			}
 		</style>
@@ -169,8 +141,8 @@ const posts = (await getCollection('blog')).sort(
 				<section>
 					<ul>
 					{
-						posts.map((post, index) => (
-							<li class={`card ${index === 0 ? 'featured-card' : ''}`}>
+						posts.map((post) => (
+							<li class="card">
 								<a href={`/blog/${post.id}/`} class="card-link">
 									{post.data.heroImage && (
 										<div class="card-image">

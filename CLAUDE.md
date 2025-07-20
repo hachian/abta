@@ -44,8 +44,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - MCPのPlaywrightツールを使用してE2Eテストを実行
 - `npm run dev`でサーバー起動後、Playwrightでブラウザテストが可能
 
+### デザインシステム
+
+#### ブログ一覧ページ（`src/pages/blog/index.astro`）
+- CSS Gridを使用したカードベースのレスポンシブレイアウト
+- フィーチャーカード：最初の投稿を全幅で強調表示
+- ホバーエフェクト：カードの浮き上がりと画像のズーム効果
+- タグデザイン：`var(--primary-dark)`を使用し、統一されたスタイル
+
+#### 色とスタイリング
+- `src/styles/global.css`で定義されたCSS変数を使用
+- 主要色：`--primary`, `--primary-dark`, `--secondary`, `--secondary-light`
+- シャドウ：`--box-shadow`変数で統一されたドロップシャドウ
+- ブログ一覧と記事ページでタグデザインを統一
+
+#### レスポンシブデザイン
+- デスクトップ：auto-fitグリッドレイアウト（最小350px）
+- モバイル（768px以下）：1カラムレイアウト
+- フィーチャーカードは画像高さとパディングを調整
+
 ### 注意事項
 
 - 現在テスト、リント、フォーマッター設定なし
 - サイトURLは`https://example.com`のままなので変更が必要
 - 画像最適化にSharpを使用
+- デザイン変更時は既存のCSS変数を使用し、新しい色は定義しない
