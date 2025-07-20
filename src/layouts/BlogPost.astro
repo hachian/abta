@@ -16,7 +16,7 @@ type Props = CollectionEntry<'blog'>['data'] & {
 const { title, description, pubDate, updatedDate, heroImage, tags, headings } = Astro.props;
 ---
 
-<html lang="en">
+<html lang="ja">
 	<head>
 		<BaseHead title={title} description={description} />
 		<style>
@@ -63,7 +63,9 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 				color: var(--primary-foreground);
 			}
 			.last-updated-on {
-				font-style: italic;
+				text-decoration: underline;
+				text-decoration-color: var(--primary);
+				text-underline-offset: 0.2em;
 			}
 			.tags {
 				display: flex;
@@ -194,7 +196,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 									{
 										updatedDate && (
 											<div class="last-updated-on">
-												Last updated on <FormattedDate date={updatedDate} />
+												最終更新: <FormattedDate date={updatedDate} />
 											</div>
 										)
 									}

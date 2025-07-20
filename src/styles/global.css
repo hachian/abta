@@ -29,7 +29,7 @@
 	font-display: swap;
 }
 body {
-	font-family: 'Atkinson', sans-serif;
+	font-family: 'Noto Sans JP', 'Atkinson', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
 	margin: 0;
 	padding: 0;
 	text-align: left;
@@ -37,8 +37,8 @@ body {
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	color: var(--primary-foreground);
-	font-size: 20px;
-	line-height: 1.7;
+	font-size: clamp(16px, 2.5vw, 18px);
+	line-height: 1.8;
 }
 main {
 	width: 720px;
@@ -57,23 +57,34 @@ h6 {
 	line-height: 1.2;
 }
 h1 {
-	font-size: 3.052em;
+	font-size: 2em;
 }
 h2 {
-	font-size: 2.441em;
+	font-size: 1.8em;
 }
 h3 {
-	font-size: 1.953em;
+	font-size: 1.6em;
 }
 h4 {
-	font-size: 1.563em;
+	font-size: 1.4em;
 }
 h5 {
-	font-size: 1.25em;
+	font-size: 1.3em;
+}
+h6 {
+	font-size: 1.2em;
 }
 strong,
 b {
 	font-weight: 700;
+	color: var(--primary);
+}
+em,
+i {
+	font-style: normal;
+	text-decoration: underline;
+	text-decoration-color: var(--primary);
+	text-underline-offset: 0.2em;
 }
 a {
 	color: var(--primary);
@@ -103,13 +114,18 @@ img {
 	border-radius: 8px;
 }
 code {
-	padding: 2px 5px;
-	background-color: var(--primary-background);
-	border-radius: 2px;
+	padding: 0.2em 0.4em;
+	background-color: var(--primary-dark);
+	border: 1px solid oklch(20% 0.15 262);
+	border-radius: 4px;
+	font-family: 'Courier New', Consolas, 'Liberation Mono', Menlo, monospace;
+	font-size: 0.85em;
+	color: var(--primary-background);
 }
 pre {
 	padding: 1.5em;
 	border-radius: 8px;
+	font-size: 0.9em;
 }
 pre > code {
 	all: unset;
@@ -118,18 +134,19 @@ blockquote {
 	border-left: 4px solid var(--primary);
 	padding: 0 0 0 20px;
 	margin: 0px;
-	font-size: 1.333em;
+	font-size: 0.95em;
+	line-height: 1.6;
 }
 hr {
 	border: none;
 	border-top: 1px solid var(--primary-background);
 }
 @media (max-width: 720px) {
-	body {
-		font-size: 18px;
-	}
 	main {
 		padding: 1em;
+	}
+	h1, h2, h3 {
+		line-height: 1.3;
 	}
 }
 
