@@ -6,6 +6,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import TableOfContents from '../components/TableOfContents.astro';
+import TagCloud from '../components/TagCloud.astro';
 import { Image } from 'astro:assets';
 
 type Props = CollectionEntry<'blog'>['data'] & {
@@ -85,9 +86,49 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 				transform: translateY(-2px);
 				box-shadow: var(--box-shadow);
 			}
-			@media (max-width: 1199px) {
+			.content-wrapper {
+				display: grid;
+				grid-template-columns: 2fr 7fr 3fr;
+				gap: 2rem;
+				align-items: flex-start;
+				width: 100%;
+				max-width: 1400px;
+				margin: 0 auto;
+			}
+			.tag-cloud-sidebar {
+				grid-column: 1;
+			}
+			.main-article {
+				grid-column: 2;
+				min-width: 0;
+			}
+			.toc-sidebar {
+				grid-column: 3;
+			}
+			.tag-cloud-bottom {
+				display: none;
+			}
+			@media (max-width: 1279px) {
 				.prose {
 					padding: 1.5rem;
+				}
+				.content-wrapper {
+					grid-template-columns: 9fr 3fr;
+				}
+				.tag-cloud-sidebar {
+					display: none;
+				}
+				.main-article {
+					grid-column: 1;
+				}
+				.toc-sidebar {
+					grid-column: 2;
+				}
+				.tag-cloud-bottom {
+					display: block;
+					margin-top: 2rem;
+					grid-column: 1;
+					max-width: calc(75% - 1rem);
 				}
 			}
 			@media (max-width: 767px) {
@@ -104,6 +145,26 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 				.hero-image img {
 					max-height: 300px;
 				}
+				.content-wrapper {
+					grid-template-columns: 1fr;
+					gap: 1rem;
+				}
+				.tag-cloud-sidebar {
+					display: none;
+				}
+				.main-article {
+					grid-column: 1;
+				}
+				.toc-sidebar {
+					display: block;
+					grid-column: 1;
+				}
+				.tag-cloud-bottom {
+					display: block;
+					margin-top: 2rem;
+					grid-column: 1;
+					max-width: 100%;
+				}
 			}
 		</style>
 	</head>
@@ -115,9 +176,11 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 				{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
 			</div>
 			<div class="container">
-				<div class="grid">
-					<div class="col-1 col-md-0 col-sm-12"></div>
-					<article class="col-8 col-md-9 col-sm-12">
+				<div class="content-wrapper">
+					<aside class="tag-cloud-sidebar">
+						<TagCloud />
+					</aside>
+					<article class="main-article">
 						<div class="prose">
 							<div class="title">
 								<div class="date">
@@ -145,9 +208,12 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 							<slot />
 						</div>
 					</article>
-					<aside class="col-3 col-md-3 col-sm-12">
+					<aside class="toc-sidebar">
 						<TableOfContents headings={headings} />
 					</aside>
+				</div>
+				<div class="tag-cloud-bottom">
+					<TagCloud />
 				</div>
 			</div>
 		</main>

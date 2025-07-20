@@ -1,0 +1,99 @@
+---
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const allTags = posts.flatMap(post => post.data.tags || []);
+
+// タグごとの記事数をカウント
+const tagCounts = allTags.reduce((acc, tag) => {
+  acc[tag] = (acc[tag] || 0) + 1;
+  return acc;
+}, {} as Record<string, number>);
+
+// タグを記事数でソート
+const sortedTags = Object.entries(tagCounts)
+  .sort(([, a], [, b]) => b - a)
+  .map(([tag, count]) => ({ tag, count }));
+
+// 最大記事数を取得（フォントサイズ計算用）
+const maxCount = Math.max(...Object.values(tagCounts));
+
+// フォントサイズを計算（3段階）
+const getFontSize = (count: number) => {
+  const ratio = count / maxCount;
+  if (ratio > 0.6) return '0.875rem';
+  if (ratio > 0.3) return '0.75rem';
+  return '0.625rem';
+};
+---
+
+<div class="tag-cloud">
+  <h3>タグ</h3>
+  <div class="tags">
+    {sortedTags.map(({ tag, count }) => (
+      <a 
+        href={`/tags/${tag}/`} 
+        class="tag" 
+        style={`font-size: ${getFontSize(count)}`}
+        title={`${count}件の記事`}
+      >
+        {tag}
+      </a>
+    ))}
+  </div>
+</div>
+
+<style>
+  .tag-cloud {
+    background: var(--primary-background);
+    box-shadow: var(--box-shadow);
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: sticky;
+    top: 2rem;
+  }
+
+  h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    color: var(--primary-foreground);
+    text-align: center;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: center;
+  }
+
+  .tag {
+    background: var(--primary-dark);
+    color: var(--primary-background);
+    padding: 0.2rem 0.5rem;
+    border-radius: 15px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .tag:hover {
+    background: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow);
+  }
+
+  @media (max-width: 1279px) {
+    .tag-cloud {
+      padding: 1rem;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .tag-cloud {
+      position: static;
+      margin-bottom: 1.5rem;
+    }
+  }
+</style>
