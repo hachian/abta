@@ -93,8 +93,6 @@ const TableOfContentsHeading = Astro.self;
 		border-radius: 12px;
 		box-shadow: var(--box-shadow);
 		padding: 1.5rem;
-		position: sticky;
-		top: 2rem;
 		max-height: calc(100vh - 4rem);
 		overflow-y: auto;
 	}
@@ -256,14 +254,8 @@ const TableOfContentsHeading = Astro.self;
 		left: 2px;
 	}
 
-	/* タブレット対応（目次は固定のまま） */
-	@media (max-width: 991px) and (min-width: 768px) {
-		.table-of-contents {
-			position: sticky;
-			top: 2rem;
-			max-height: calc(100vh - 4rem);
-		}
-
+	/* タブレット・デスクトップ対応（目次は固定のまま） */
+	@media (min-width: 768px) {
 		.toc-toggle {
 			display: none;
 		}
