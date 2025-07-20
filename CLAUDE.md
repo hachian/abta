@@ -69,6 +69,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - モバイル（768px以下）：1カラムレイアウト
 - 全デバイスで統一されたカードサイズ
 
+#### ブログ記事ページ（`src/layouts/BlogPost.astro`）
+- **レイアウト構造**:
+  - Large（1280px以上）：3カラム（タグクラウド｜記事本文｜目次）
+  - Middle（768px-1279px）：2カラム（記事本文｜目次）
+  - Mobile（767px以下）：1カラム（記事本文のみ、目次は右下固定）
+- **目次（TableOfContents）**:
+  - デスクトップ・タブレット：画面上部32pxに固定でスクロール追従（`position: sticky`）
+  - モバイル：右下32px位置に固定表示（`position: fixed`）、折りたたみ可能
+  - H2とH3の階層構造を視覚的に表現（縦線と丸アイコン）
+  - アクティブセクションのハイライト機能
+- **タグクラウド（TagCloud）**:
+  - Large：左サイドバーに表示
+  - Middle以下：記事下部に表示
+
 ### 注意事項
 
 - 現在テスト、リント、フォーマッター設定なし
