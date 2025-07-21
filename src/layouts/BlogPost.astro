@@ -111,6 +111,15 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 				max-width: 1400px;
 				margin: 0 auto;
 			}
+			.content-wrapper.no-tags {
+				grid-template-columns: 7fr 3fr;
+			}
+			.content-wrapper.no-tags .main-article {
+				grid-column: 1;
+			}
+			.content-wrapper.no-tags .toc-sidebar {
+				grid-column: 2;
+			}
 			.tag-cloud-sidebar {
 				grid-column: 1;
 			}
@@ -168,23 +177,24 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 					max-height: 300px;
 				}
 				.content-wrapper {
-					grid-template-columns: 1fr;
-					gap: 1rem;
+					display: block;
+					gap: 0;
 				}
 				.tag-cloud-sidebar {
 					display: none;
 				}
 				.main-article {
-					grid-column: 1;
+					width: 100%;
 				}
 				.toc-sidebar {
+					position: fixed;
+					bottom: 0;
+					right: 0;
 					display: block;
-					grid-column: 1;
 				}
 				.tag-cloud-bottom {
 					display: block;
 					margin-top: 2rem;
-					grid-column: 1;
 					max-width: 100%;
 				}
 			}
@@ -198,10 +208,12 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 				{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
 			</div>
 			<div class="container">
-				<div class="content-wrapper">
-					<aside class="tag-cloud-sidebar">
-						<TagCloud />
-					</aside>
+				<div class={`content-wrapper ${!tags ? 'no-tags' : ''}`}>
+					{tags && (
+						<aside class="tag-cloud-sidebar">
+							<TagCloud />
+						</aside>
+					)}
 					<article class="main-article">
 						<div class="prose">
 							<div class="title">
@@ -248,9 +260,11 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 						<TableOfContents headings={headings} />
 					</aside>
 				</div>
-				<div class="tag-cloud-bottom">
-					<TagCloud />
-				</div>
+				{tags && (
+					<div class="tag-cloud-bottom">
+						<TagCloud />
+					</div>
+				)}
 			</div>
 		</main>
 		<Footer />

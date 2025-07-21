@@ -265,11 +265,11 @@ const TableOfContentsHeading = Astro.self;
 	@media (max-width: 767px) {
 		.table-of-contents {
 			position: fixed;
-			bottom: 2rem;
-			right: 2rem;
+			bottom: 1rem;
+			right: 1rem;
 			top: auto;
 			max-height: 70vh;
-			width: 280px;
+			width: min(280px, calc(100vw - 2rem));
 			z-index: 1000;
 			margin-bottom: 0;
 			padding: 1rem;
