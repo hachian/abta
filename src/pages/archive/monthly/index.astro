@@ -1,0 +1,191 @@
+---
+import BaseHead from '../../../components/BaseHead.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../../../consts';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+
+// Extract year/month from all posts
+const allYearMonths = posts.map(post => {
+  const date = new Date(post.data.pubDate);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${year}/${month}`;
+});
+
+// Get unique year/months and sort in descending order
+const uniqueYearMonths = [...new Set(allYearMonths)].sort((a, b) => b.localeCompare(a));
+
+// Count posts for each year/month
+const yearMonthCounts = uniqueYearMonths.reduce((acc, yearMonth) => {
+  acc[yearMonth] = posts.filter(post => {
+    const date = new Date(post.data.pubDate);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}/${month}` === yearMonth;
+  }).length;
+  return acc;
+}, {} as Record<string, number>);
+---
+
+<!doctype html>
+<html lang="ja">
+	<head>
+		<BaseHead title={`月別アーカイブ - ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+		<style>
+			body {
+				background: var(--primary-background);
+				min-height: 100vh;
+			}
+			
+			main {
+				width: 100%;
+				padding: 2rem 0;
+			}
+			
+			.container {
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 0 1rem;
+			}
+			
+			.page-header {
+				text-align: center;
+				margin-bottom: 3rem;
+			}
+			
+			h1 {
+				color: var(--primary-foreground);
+				font-size: 2rem;
+				margin: 0 0 1rem 0;
+			}
+			
+			.page-description {
+				color: var(--primary-foreground);
+				font-size: 1rem;
+			}
+			
+			.archives-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+				gap: 2rem;
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
+				justify-content: start;
+			}
+			
+			.archive-card {
+				background: var(--primary-background);
+				border-radius: 16px;
+				box-shadow: var(--box-shadow);
+				transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+				overflow: hidden;
+				position: relative;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				text-decoration: none;
+				padding: 2rem 1.5rem;
+				min-height: 100px;
+			}
+			
+			.archive-card:hover {
+				transform: translateY(-8px);
+				box-shadow: var(--box-shadow);
+			}
+			
+			.archive-name {
+				font-size: 1.25rem;
+				font-weight: 600;
+				margin-bottom: 0.5rem;
+				color: var(--primary-foreground);
+			}
+			
+			.archive-count {
+				color: var(--primary);
+				font-size: 1rem;
+				font-weight: 500;
+			}
+			
+			@media (max-width: 768px) {
+				.archives-grid {
+					grid-template-columns: 1fr;
+					gap: 1.5rem;
+				}
+				
+				h1 {
+					font-size: 1.5rem;
+				}
+				
+				.archive-card {
+					padding: 1.5rem 1rem;
+					min-height: 80px;
+				}
+				
+				.archive-name {
+					font-size: 1.1rem;
+				}
+			}
+			
+			.archive-nav {
+				display: flex;
+				justify-content: center;
+				gap: 1rem;
+				margin-bottom: 2rem;
+			}
+			
+			.nav-link {
+				color: var(--primary);
+				text-decoration: none;
+				padding: 0.5rem 1rem;
+				border-radius: 8px;
+				transition: all 0.2s ease;
+				font-size: 0.9rem;
+			}
+			
+			.nav-link:hover {
+				background: var(--primary);
+				color: var(--primary-background);
+				transform: translateY(-2px);
+			}
+			
+			.nav-link.active {
+				background: var(--primary-dark);
+				color: var(--primary-background);
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<div class="container">
+				<div class="archive-nav">
+					<a href="/archive/monthly/" class="nav-link active">月別</a>
+					<a href="/archive/yearly/" class="nav-link">年別</a>
+				</div>
+				<div class="page-header">
+					<h1>月別アーカイブ</h1>
+					<p class="page-description">月別から記事を探す</p>
+				</div>
+				<div class="archives-grid">
+					{uniqueYearMonths.map(yearMonth => {
+						const [year, month] = yearMonth.split('/');
+						return (
+							<a href={`/archive/monthly/${year}/${month}/`} class="archive-card">
+								<div class="archive-name">{yearMonth}</div>
+								<div class="archive-count">
+									{yearMonthCounts[yearMonth]}記事
+								</div>
+							</a>
+						);
+					})}
+				</div>
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>

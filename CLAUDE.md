@@ -25,12 +25,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `src/pages/` - ファイルベースルーティング
 - `src/layouts/BlogPost.astro` - ブログ投稿の共通レイアウト
 - `src/pages/tags/[tag].astro` - 動的タグページ生成
+- `src/pages/archive/` - 時系列アーカイブページ
+  - `monthly/index.astro` - 月別一覧ページ
+  - `monthly/[year]/[month].astro` - 月別記事一覧ページ
+  - `yearly/index.astro` - 年別一覧ページ
+  - `yearly/[year].astro` - 年別記事一覧ページ
 - `src/pages/rss.xml.js` - RSSフィード生成
 
 ### コンポーネント設計
 
 - `src/components/` - 再利用可能なAstroコンポーネント
 - `BaseHead.astro` - 共通のHTMLメタデータ設定
+- `Header.astro` - ナビゲーションヘッダー（Home, Blog, Tags, Archive, About）
 - TypeScript厳密モードが有効
 
 ### 設定ファイル
@@ -108,6 +114,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **タグクラウド（TagCloud）**:
   - Large：左サイドバーに表示
   - Middle以下：記事下部に表示
+
+#### アーカイブページ（`src/pages/archive/`）
+- **時系列アーカイブ機能**: pubDateから年月を動的に抽出してアーカイブ生成
+- **月別一覧ページ** (`/archive/monthly/`):
+  - 全月の記事数を「2025/06 1記事」形式で表示
+  - 既存タグ一覧ページと同様のカードレイアウト
+  - 月別・年別間のナビゲーションタブ（月別がアクティブ）
+- **年別一覧ページ** (`/archive/yearly/`):
+  - 全年の記事数を「2025 1記事」形式で表示
+  - 既存タグ一覧ページと同様のカードレイアウト
+  - 月別・年別間のナビゲーションタブ（年別がアクティブ）
+- **月別記事一覧ページ** (`/archive/monthly/2025/06/`):
+  - 特定月の記事一覧
+  - 既存タグページと同様のカードレイアウト
+  - 戻りリンクとシンプルなページヘッダー「2025/06の記事」
+- **年別記事一覧ページ** (`/archive/yearly/2025/`):
+  - 特定年の記事一覧
+  - 既存タグページと同様のカードレイアウト
+  - 戻りリンクとシンプルなページヘッダー「2025年の記事」
+- **ナビゲーション機能**:
+  - 月別・年別一覧ページ間をワンクリックで切り替え可能
+  - アクティブ状態の視覚的表現とホバーエフェクト
+  - 中央配置されたタブナビゲーション
+- **技術実装**: 
+  - `getStaticPaths()`による動的パス生成
+  - JavaScriptのDateオブジェクトでpubDateから年月抽出
+  - 統一されたCSSデザインシステムを継承
+  - ヘッダーナビゲーションから「Archive」でアクセス可能
+  - ミニマルなヘッダーデザイン（バッジ要素なし）
 
 ### コンテンツ管理
 
