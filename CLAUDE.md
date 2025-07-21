@@ -114,6 +114,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **タグクラウド（TagCloud）**:
   - Large：左サイドバーに表示
   - Middle以下：記事下部に表示
+  - **月別アーカイブ機能**: 最新5件の月別記事数を表示（例：「2025/06 (3)」）
+  - アーカイブページへの直接リンクと「すべて見る」リンク
 
 #### アーカイブページ（`src/pages/archive/`）
 - **時系列アーカイブ機能**: pubDateから年月を動的に抽出してアーカイブ生成

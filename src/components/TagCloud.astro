@@ -25,6 +25,26 @@ const getFontSize = (count: number) => {
   if (ratio > 0.3) return '0.75rem';
   return '0.625rem';
 };
+
+// 月別アーカイブデータを生成
+const allYearMonths = posts.map(post => {
+  const date = new Date(post.data.pubDate);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${year}/${month}`;
+});
+
+// 重複を除去して月別記事数をカウント
+const yearMonthCounts = allYearMonths.reduce((acc, yearMonth) => {
+  acc[yearMonth] = (acc[yearMonth] || 0) + 1;
+  return acc;
+}, {} as Record<string, number>);
+
+// 月別データを新しい順にソートして上位5件を取得
+const sortedYearMonths = Object.entries(yearMonthCounts)
+  .sort(([a], [b]) => b.localeCompare(a))
+  .slice(0, 5)
+  .map(([yearMonth, count]) => ({ yearMonth, count }));
 ---
 
 <div class="tag-cloud">
@@ -41,6 +61,27 @@ const getFontSize = (count: number) => {
       </a>
     ))}
   </div>
+  
+  {sortedYearMonths.length > 0 && (
+    <div class="archive-section">
+      <h4>月別アーカイブ</h4>
+      <div class="archive-links">
+        {sortedYearMonths.map(({ yearMonth, count }) => {
+          const [year, month] = yearMonth.split('/');
+          return (
+            <a 
+              href={`/archive/monthly/${year}/${month}/`} 
+              class="archive-link"
+              title={`${count}件の記事`}
+            >
+              {yearMonth} ({count})
+            </a>
+          );
+        })}
+      </div>
+      <a href="/archive/monthly/" class="archive-all-link">すべて見る</a>
+    </div>
+  )}
 </div>
 
 <style>
@@ -95,5 +136,61 @@ const getFontSize = (count: number) => {
       position: static;
       margin-bottom: 1.5rem;
     }
+  }
+
+  .archive-section {
+    margin-top: 1.5rem;
+    border-top: 1px solid oklch(var(--primary-foreground) / 0.1);
+    padding-top: 1rem;
+  }
+
+  h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.875rem;
+    color: var(--primary-foreground);
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .archive-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .archive-link {
+    background: var(--primary-dark);
+    color: var(--primary-background);
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  .archive-link:hover {
+    background: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: var(--box-shadow);
+  }
+
+  .archive-all-link {
+    display: block;
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.75rem;
+    text-align: center;
+    padding: 0.25rem 0;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+
+  .archive-all-link:hover {
+    background: oklch(var(--primary) / 0.1);
+    color: var(--primary-dark);
   }
 </style>
