@@ -1,7 +1,9 @@
 {
-  "name": "",
+  "name": "abta",
   "type": "module",
   "version": "0.0.1",
+  "description": "Astro Blog Tags Archive - 日本語に最適化されたAstroブログテンプレート",
+  "license": "MIT",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

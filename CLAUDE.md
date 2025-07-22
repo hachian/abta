@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## プロジェクト概要
+
+ABTA (Astro Blog Tags Archive) は、日本語ブログ執筆者向けに最適化されたAstroベースのブログテンプレートです。MITライセンスで公開されています。
+
 ## 開発コマンド
 
 - `npm run dev` - 開発サーバーを起動（localhost:4321）
@@ -152,6 +156,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### コンテンツ管理
 
+#### ホームページ（`src/pages/index.astro`）
+- **ABTAプロジェクト紹介ページ**:
+  - プロジェクト名とサブタイトル（A-B-T-A強調表示）
+  - 主な特徴を9項目で紹介
+  - ナビゲーションカード（ブログ一覧、タグ一覧、月別アーカイブ）
+  - レスポンシブ対応（モバイル、タブレット、デスクトップ）
+
 #### 日本語記事サンプル
 - `src/content/blog/markdown-style-guide-ja/`: 日本語Markdownスタイルガイド
 - 日本語記事作成時の参考として活用
@@ -164,3 +175,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 画像最適化にSharpを使用
 - **デザイン変更時は既存のCSS変数を使用し、新しい色は定義しない**
 - **日本語サイトとして最適化済み - 言語設定やフォント変更時は注意**
+
+### プロジェクト情報
+
+- **ライセンス**: MIT
+- **サイトタイトル**: ABTA (src/consts.ts で設定)
+- **説明**: 日本語に最適化されたAstroブログテンプレート
+- **著作権表記**: ABTA Project (Footer.astroで表示)
