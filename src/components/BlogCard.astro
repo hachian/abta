@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import FormattedDate from './FormattedDate.astro';
 import Icon from './Icon.astro';
-import { BLOG_IMAGE_WIDTH, BLOG_IMAGE_HEIGHT } from '../consts';
+import { BLOG_IMAGE_WIDTH, BLOG_IMAGE_HEIGHT, FEATURES } from '../consts';
 import type { CollectionEntry } from 'astro:content';
 
 export interface Props {
@@ -33,7 +33,7 @@ const { post } = Astro.props;
 					</div>
 				)}
 			</div>
-			{post.data.tags && post.data.tags.length > 0 && (
+			{FEATURES.TAGS_ENABLED && post.data.tags && post.data.tags.length > 0 && (
 				<div class="tags">
 					{post.data.tags.map(tag => (
 						<a href={`/tags/${tag}/`} class="tag" onclick="(e) => e.stopPropagation()">

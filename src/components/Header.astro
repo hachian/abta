@@ -1,7 +1,7 @@
 ---
 import HeaderLink from './HeaderLink.astro';
 import SocialLinks from './SocialLinks.astro';
-import { SITE_TITLE } from '../consts';
+import { SITE_TITLE, FEATURES } from '../consts';
 ---
 
 <header>
@@ -10,8 +10,8 @@ import { SITE_TITLE } from '../consts';
 		<div class="internal-links">
 			<HeaderLink href="/">Home</HeaderLink>
 			<HeaderLink href="/blog">Blog</HeaderLink>
-			<HeaderLink href="/tags">Tags</HeaderLink>
-			<HeaderLink href="/archive/monthly">Archive</HeaderLink>
+			{FEATURES.TAGS_ENABLED && <HeaderLink href="/tags">Tags</HeaderLink>}
+			{FEATURES.ARCHIVE_ENABLED && <HeaderLink href="/archive/monthly">Archive</HeaderLink>}
 			<HeaderLink href="/about">About</HeaderLink>
 		</div>
 		<SocialLinks />

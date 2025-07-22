@@ -56,6 +56,9 @@ ABTA (Astro Blog Tags Archive) は、日本語ブログ執筆者向けに最適�
   - `BLOG_IMAGE_WIDTH` / `BLOG_IMAGE_HEIGHT` - ブログ画像サイズ（720x360）
   - `GRID_MIN_WIDTH` - グリッド最小幅（350px）
   - `CARD_MAX_WIDTH_DESKTOP` / `CARD_MAX_WIDTH_TABLET` - カード最大幅
+  - **機能フラグ（FEATURES）**:
+    - `TAGS_ENABLED` - タグ機能の有効/無効（デフォルト: true）
+    - `ARCHIVE_ENABLED` - アーカイブ機能の有効/無効（デフォルト: true）
 - `astro.config.mjs` - サイトURL、統合設定（MDX、サイトマップ）
 - Content Collectionsのスキーマは`src/content/config.ts`で定義
 
@@ -179,6 +182,38 @@ ABTA (Astro Blog Tags Archive) は、日本語ブログ執筆者向けに最適�
 - 日本語記事作成時の参考として活用
 - 見出し、段落、リスト、コード、引用等の記法例を提供
 
+### 機能フラグによる機能制御（2025/7/22実装）
+
+#### 概要
+`src/consts.ts`の`FEATURES`オブジェクトで、タグ機能とアーカイブ機能を個別にオン/オフできます。
+
+#### 機能フラグの影響範囲
+- **TAGS_ENABLED = false** の場合:
+  - ヘッダーナビゲーションからTagsリンクが非表示
+  - ホームページからタグ一覧カードが非表示
+  - BlogCardコンポーネントでタグが非表示
+  - ブログ記事ページでタグセクションが非表示
+  - TagCloudコンポーネントでタグ一覧セクションが非表示
+- **ARCHIVE_ENABLED = false** の場合:
+  - ヘッダーナビゲーションからArchiveリンクが非表示
+  - ホームページから月別アーカイブカードが非表示
+  - TagCloudコンポーネントで月別アーカイブセクションが非表示
+
+#### 使用例
+```typescript
+// タグ機能のみ無効化
+export const FEATURES = {
+  TAGS_ENABLED: false,
+  ARCHIVE_ENABLED: true,
+};
+
+// 両機能とも無効化
+export const FEATURES = {
+  TAGS_ENABLED: false,
+  ARCHIVE_ENABLED: false,
+};
+```
+
 ### 注意事項
 
 - 現在テスト、リント、フォーマッター設定なし
@@ -187,6 +222,7 @@ ABTA (Astro Blog Tags Archive) は、日本語ブログ執筆者向けに最適�
 - **デザイン変更時は既存のCSS変数を使用し、新しい色は定義しない**
 - **日本語サイトとして最適化済み - 言語設定やフォント変更時は注意**
 - **コンポーネント化済み** - BlogCard、Icon、SocialLinksは再利用可能
+- **機能フラグ対応済み** - タグとアーカイブ機能を個別に制御可能
 
 ### プロジェクト情報
 

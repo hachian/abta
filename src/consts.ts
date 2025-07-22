@@ -12,3 +12,9 @@ export const BLOG_IMAGE_HEIGHT = 360;
 export const GRID_MIN_WIDTH = 350; // px
 export const CARD_MAX_WIDTH_DESKTOP = 400; // px
 export const CARD_MAX_WIDTH_TABLET = 500; // px
+
+// Feature flags
+export const FEATURES = {
+	TAGS_ENABLED: true,      // タグ機能の有効/無効
+	ARCHIVE_ENABLED: true,   // アーカイブ機能の有効/無効
+};

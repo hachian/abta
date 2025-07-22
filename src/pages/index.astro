@@ -2,7 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION, FEATURES } from '../consts';
 ---
 
 <!doctype html>
@@ -245,38 +245,42 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 						</p>
 					</a>
 
-					<a href="/tags/" class="nav-card">
-						<svg class="nav-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="m22 19-9.5-9.5a5 5 0 1 1 0-7l9.5 9.5z"></path>
-							<path d="M11.36 6.364 7.828 2.828a2 2 0 1 0-2.829 2.829l3.536 3.536"></path>
-							<circle cx="8" cy="16" r="6"></circle>
-						</svg>
-						<h3 class="nav-card-title">タグ一覧</h3>
-						<p class="nav-card-description">
-							タグから記事を探せます。
-							興味のあるトピックごとに記事をまとめて確認できます。
-						</p>
-					</a>
+					{FEATURES.TAGS_ENABLED && (
+						<a href="/tags/" class="nav-card">
+							<svg class="nav-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="m22 19-9.5-9.5a5 5 0 1 1 0-7l9.5 9.5z"></path>
+								<path d="M11.36 6.364 7.828 2.828a2 2 0 1 0-2.829 2.829l3.536 3.536"></path>
+								<circle cx="8" cy="16" r="6"></circle>
+							</svg>
+							<h3 class="nav-card-title">タグ一覧</h3>
+							<p class="nav-card-description">
+								タグから記事を探せます。
+								興味のあるトピックごとに記事をまとめて確認できます。
+							</p>
+						</a>
+					)}
 
-					<a href="/archive/monthly/" class="nav-card">
-						<svg class="nav-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M8 2v4"></path>
-							<path d="M16 2v4"></path>
-							<rect width="18" height="18" x="3" y="4" rx="2"></rect>
-							<path d="M3 10h18"></path>
-							<path d="M8 14h.01"></path>
-							<path d="M12 14h.01"></path>
-							<path d="M16 14h.01"></path>
-							<path d="M8 18h.01"></path>
-							<path d="M12 18h.01"></path>
-							<path d="M16 18h.01"></path>
-						</svg>
-						<h3 class="nav-card-title">月別アーカイブ</h3>
-						<p class="nav-card-description">
-							月ごと・年ごとに記事を整理。
-							過去の記事を時系列で振り返ることができます。
-						</p>
-					</a>
+					{FEATURES.ARCHIVE_ENABLED && (
+						<a href="/archive/monthly/" class="nav-card">
+							<svg class="nav-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M8 2v4"></path>
+								<path d="M16 2v4"></path>
+								<rect width="18" height="18" x="3" y="4" rx="2"></rect>
+								<path d="M3 10h18"></path>
+								<path d="M8 14h.01"></path>
+								<path d="M12 14h.01"></path>
+								<path d="M16 14h.01"></path>
+								<path d="M8 18h.01"></path>
+								<path d="M12 18h.01"></path>
+								<path d="M16 18h.01"></path>
+							</svg>
+							<h3 class="nav-card-title">月別アーカイブ</h3>
+							<p class="nav-card-description">
+								月ごと・年ごとに記事を整理。
+								過去の記事を時系列で振り返ることができます。
+							</p>
+						</a>
+					)}
 				</nav>
 			</div>
 		</main>

@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { FEATURES } from '../consts';
 
 const posts = await getCollection('blog');
 const allTags = posts.flatMap(post => post.data.tags || []);
@@ -48,21 +49,25 @@ const sortedYearMonths = Object.entries(yearMonthCounts)
 ---
 
 <div class="tag-cloud">
-  <h3>タグ一覧</h3>
-  <div class="tags">
-    {sortedTags.map(({ tag, count }) => (
-      <a 
-        href={`/tags/${tag}/`} 
-        class="tag" 
-        style={`font-size: ${getFontSize(count)}`}
-        title={`${count}件の記事`}
-      >
-        {tag}
-      </a>
-    ))}
-  </div>
+  {FEATURES.TAGS_ENABLED && (
+    <>
+      <h3>タグ一覧</h3>
+      <div class="tags">
+        {sortedTags.map(({ tag, count }) => (
+          <a 
+            href={`/tags/${tag}/`} 
+            class="tag" 
+            style={`font-size: ${getFontSize(count)}`}
+            title={`${count}件の記事`}
+          >
+            {tag}
+          </a>
+        ))}
+      </div>
+    </>
+  )}
   
-  {sortedYearMonths.length > 0 && (
+  {FEATURES.ARCHIVE_ENABLED && sortedYearMonths.length > 0 && (
     <div class="archive-section">
       <h4>月別アーカイブ</h4>
       <div class="archive-links">

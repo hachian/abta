@@ -8,6 +8,7 @@ import FormattedDate from '../components/FormattedDate.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 import TagCloud from '../components/TagCloud.astro';
 import { Image } from 'astro:assets';
+import { FEATURES } from '../consts';
 
 type Props = CollectionEntry<'blog'>['data'] & {
 	headings: MarkdownHeading[];
@@ -208,8 +209,8 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 				{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
 			</div>
 			<div class="container">
-				<div class={`content-wrapper ${!tags ? 'no-tags' : ''}`}>
-					{tags && (
+				<div class={`content-wrapper ${!FEATURES.TAGS_ENABLED || !tags ? 'no-tags' : ''}`}>
+					{FEATURES.TAGS_ENABLED && tags && (
 						<aside class="tag-cloud-sidebar">
 							<TagCloud />
 						</aside>
@@ -242,7 +243,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 									}
 								</div>
 								<h1>{title}</h1>
-								{tags && tags.length > 0 && (
+								{FEATURES.TAGS_ENABLED && tags && tags.length > 0 && (
 									<div class="tags">
 										{tags.map(tag => (
 											<a href={`/tags/${tag}/`} class="tag">
@@ -260,7 +261,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 						<TableOfContents headings={headings} />
 					</aside>
 				</div>
-				{tags && (
+				{FEATURES.TAGS_ENABLED && tags && (
 					<div class="tag-cloud-bottom">
 						<TagCloud />
 					</div>
