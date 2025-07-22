@@ -1,10 +1,9 @@
 ---
-import BaseHead from '../../components/BaseHead.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import Breadcrumb from '../../components/Breadcrumb.astro';
+import ContentLayout from '../../components/ContentLayout.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 import { getCollection } from 'astro:content';
+import { createCollectionPageSchema } from '../../utils/schema.ts';
+import { formatPostCount } from '../../utils/formatting.ts';
 
 const posts = await getCollection('blog');
 const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))].sort();
@@ -16,20 +15,14 @@ const tagCounts = allTags.reduce((acc, tag) => {
 }, {} as Record<string, number>);
 
 // CollectionPage構造化データ
-const collectionPageSchema = {
-	"@context": "https://schema.org",
-	"@type": "CollectionPage",
-	"name": "タグ一覧",
-	"description": "ABTAのブログ記事をタグ別に整理したページです。興味のあるトピックから記事を探すことができます。",
-	"url": new URL(Astro.url.pathname, Astro.site).href,
-	"inLanguage": "ja",
-	"isPartOf": {
-		"@type": "WebSite",
-		"name": "ABTA",
-		"url": Astro.site?.href
-	},
-	"numberOfItems": allTags.length
-};
+const collectionPageSchema = createCollectionPageSchema(
+	"タグ一覧",
+	"ABTAのブログ記事をタグ別に整理したページです。興味のあるトピックから記事を探すことができます。",
+	new URL(Astro.url.pathname, Astro.site).href,
+	Astro.site?.href || '',
+	"ABTA",
+	allTags.length
+);
 
 // パンくずリスト用データ
 const breadcrumbItems = [
@@ -41,129 +34,24 @@ const pageTitle = `タグ一覧 - ${SITE_TITLE}`;
 const pageDescription = 'ABTAのブログ記事をタグ別に整理したページです。興味のあるトピックから記事を探すことができます。';
 ---
 
-<!doctype html>
-<html lang="ja">
-	<head>
-		<BaseHead title={pageTitle} description={pageDescription} />
-		<script type="application/ld+json" set:html={JSON.stringify(collectionPageSchema)}></script>
-		<style>
-			body {
-				background: var(--primary-background);
-				min-height: 100vh;
-			}
-			
-			main {
-				width: 100%;
-				padding: 2rem 0;
-			}
-			
-			.container {
-				max-width: 1200px;
-				margin: 0 auto;
-				padding: 0 1rem;
-			}
-			
-			.page-header {
-				text-align: center;
-				margin-bottom: 3rem;
-			}
-			
-			h1 {
-				color: var(--primary-foreground);
-				font-size: 2rem;
-				margin: 0 0 1rem 0;
-			}
-			
-			.page-description {
-				color: var(--primary-foreground);
-				font-size: 1rem;
-			}
-			
-			.tags-grid {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-				gap: 2rem;
-				list-style-type: none;
-				margin: 0;
-				padding: 0;
-			}
-			
-			.tag-card {
-				background: var(--primary-background);
-				border-radius: 16px;
-				box-shadow: var(--box-shadow);
-				transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-				overflow: hidden;
-				position: relative;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-				text-decoration: none;
-				padding: 2rem 1.5rem;
-				min-height: 100px;
-			}
-			
-			.tag-card:hover {
-				transform: translateY(-8px);
-				box-shadow: var(--box-shadow);
-			}
-			
-			.tag-name {
-				font-size: 1.25rem;
-				font-weight: 600;
-				margin-bottom: 0.5rem;
-				color: var(--primary-foreground);
-			}
-			
-			.tag-count {
-				color: var(--primary);
-				font-size: 1rem;
-				font-weight: 500;
-			}
-			
-			@media (max-width: 768px) {
-				.tags-grid {
-					grid-template-columns: 1fr;
-					gap: 1.5rem;
-				}
-				
-				h1 {
-					font-size: 1.5rem;
-				}
-				
-				.tag-card {
-					padding: 1.5rem 1rem;
-					min-height: 80px;
-				}
-				
-				.tag-name {
-					font-size: 1.1rem;
-				}
-			}
-		</style>
-	</head>
-	<body>
-		<Header />
-		<main>
-			<div class="container">
-				<Breadcrumb items={breadcrumbItems} />
-				<div class="page-header">
-					<h1>タグ一覧</h1>
-					<p class="page-description">タグから記事を探す</p>
+<ContentLayout
+	title={pageTitle}
+	description={pageDescription}
+	breadcrumbItems={breadcrumbItems}
+	schema={collectionPageSchema}
+>
+	<div class="page-header">
+		<h1>タグ一覧</h1>
+		<p class="page-description">タグから記事を探す</p>
+	</div>
+	<div class="tags-grid">
+		{allTags.map(tag => (
+			<a href={`/tags/${tag}/`} class="tag-card">
+				<div class="tag-name">{tag}</div>
+				<div class="tag-count">
+					{formatPostCount(tagCounts[tag])}
 				</div>
-				<div class="tags-grid">
-					{allTags.map(tag => (
-						<a href={`/tags/${tag}/`} class="tag-card">
-							<div class="tag-name">{tag}</div>
-							<div class="tag-count">
-								{tagCounts[tag]} 記事
-							</div>
-						</a>
-					))}
-				</div>
-			</div>
-		</main>
-		<Footer />
-	</body>
-</html>
+			</a>
+		))}
+	</div>
+</ContentLayout>

@@ -4,6 +4,11 @@
   License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
  */
 
+/* Import shared stylesheets */
+@import './components.css';
+@import './layouts.css';
+@import './utilities.css';
+
 :root {
 	--primary: oklch(45% 0.25 262);
 	--primary-dark: oklch(25% 0.22 262);

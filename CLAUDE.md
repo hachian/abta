@@ -40,6 +40,9 @@ ABTA (Astro Blog Tags Archive) は、日本語ブログ執筆者向けに最適�
   - `BlogCardGrid.astro` - BlogCardのグリッドレイアウト
   - `SocialLinks.astro` - ソーシャルメディアリンク
   - `Icon.astro` - SVGアイコン
+  - `PageLayout.astro` - ヒーロー画像付きページ用の共通レイアウト
+  - `ContentLayout.astro` - 一覧ページ用の共通レイアウト
+  - `BlogPostLayout.astro` - ブログ記事専用レイアウト（タグクラウド、目次付き）
 - TypeScript厳密モードが有効
 
 ### 設定ファイル
@@ -47,6 +50,29 @@ ABTA (Astro Blog Tags Archive) は、日本語ブログ執筆者向けに最適�
 - `src/consts.ts` - サイト全体の定数と機能フラグ
 - `astro.config.mjs` - サイトURL、統合設定（MDX、サイトマップ）
 - `src/content/config.ts` - Content Collectionsスキーマ
+
+### スタイルシステム
+
+- **グローバルスタイル**: `src/styles/global.css` - ベーススタイルとCSS変数定義
+- **共通スタイルシート** (global.cssでインポート):
+  - `src/styles/components.css` - 再利用可能なコンポーネント用スタイル
+  - `src/styles/layouts.css` - レイアウト関連スタイル
+  - `src/styles/utilities.css` - ユーティリティクラス
+
+### ユーティリティ関数
+
+- `src/utils/schema.ts` - 構造化データ（JSON-LD）生成関数
+  - `createWebSiteSchema()` - WebSiteスキーマ生成
+  - `createCollectionPageSchema()` - コレクションページスキーマ生成
+  - `createBlogPostSchema()` - ブログ記事スキーマ生成
+- `src/utils/archive.ts` - 日付・アーカイブ処理関数
+  - `formatJapaneseYearMonth()` - 日本語形式の年月表示
+  - `groupPostsByMonth()` - 記事を月別にグループ化
+  - `groupPostsByYear()` - 記事を年別にグループ化
+- `src/utils/formatting.ts` - フォーマット関連関数
+  - `formatPostCount()` - 記事数を日本語形式で表示（例: 5記事）
+  - `truncateText()` - テキストの切り詰め
+  - `joinWithComma()` - 配列を日本語カンマ区切りに
 
 ### テスト
 
@@ -109,3 +135,4 @@ export const FEATURES = {
 - **日本語サイトとして最適化済み - 言語設定やフォント変更時は注意**
 - **コンポーネント化済み** - 再利用可能な共通コンポーネントを活用
 - **機能フラグ対応済み** - タグとアーカイブ機能を個別に制御可能
+- **リファクタリング済み** - 重複コードを削除し、共通コンポーネント・スタイル・ユーティリティを使用

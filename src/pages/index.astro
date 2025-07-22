@@ -1,24 +1,15 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import Breadcrumb from '../components/Breadcrumb.astro';
+import ContentLayout from '../components/ContentLayout.astro';
 import { SITE_TITLE, SITE_DESCRIPTION, FEATURES } from '../consts';
+import { createWebSiteSchema } from '../utils/schema.ts';
 
 // WebSite構造化データ
-const websiteSchema = {
-	"@context": "https://schema.org",
-	"@type": "WebSite",
-	"name": "ABTA",
-	"alternateName": "Astro Blog Tags Archive",
-	"url": Astro.site?.href,
-	"description": SITE_DESCRIPTION,
-	"publisher": {
-		"@type": "Organization",
-		"name": "ABTA"
-	},
-	"inLanguage": "ja"
-};
+const websiteSchema = createWebSiteSchema(
+	"ABTA",
+	SITE_DESCRIPTION,
+	Astro.site?.href || '',
+	"Astro Blog Tags Archive"
+);
 
 // パンくずリスト用データ（ホームページは単一要素）
 const breadcrumbItems = [
@@ -26,206 +17,24 @@ const breadcrumbItems = [
 ];
 ---
 
-<!doctype html>
-<html lang="ja">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-		<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)}></script>
-		<style>
-			* {
-				box-sizing: border-box;
-			}
-			html, body {
-				overflow-x: hidden;
-			}
-			body {
-				min-width: 0;
-			}
-			main.home-page {
-				width: 100%;
-				max-width: 100%;
-				margin: 0;
-				padding: 2rem 0;
-				overflow-x: hidden;
-			}
-			.content-wrapper {
-				width: 100%;
-				max-width: 1200px;
-				margin: 0 auto;
-				padding: 0 1rem;
-			}
-			.hero-section {
-				text-align: center;
-				margin-bottom: 4rem;
-			}
-			.hero-section h1 {
-				font-size: 2.5rem;
-				color: var(--primary);
-				margin-bottom: 1rem;
-				font-weight: 700;
-			}
-			.hero-section .subtitle {
-				font-size: 1.2rem;
-				color: var(--primary-foreground);
-				margin-bottom: 2rem;
-			}
-			.hero-section .subtitle em {
-				color: var(--primary);
-				font-style: normal;
-				font-weight: 600;
-			}
-			.description {
-				max-width: 800px;
-				margin: 0 auto 3rem;
-				line-height: 1.8;
-				color: var(--primary-foreground);
-				word-wrap: break-word;
-				overflow-wrap: break-word;
-			}
-			.features {
-				background: var(--primary-background);
-				box-shadow: var(--box-shadow);
-				border-radius: 12px;
-				padding: 2rem;
-				margin-bottom: 3rem;
-			}
-			.features h2 {
-				text-align: center;
-				color: var(--primary-foreground);
-				margin-bottom: 1.5rem;
-			}
-			.features ul {
-				list-style: none;
-				padding: 0;
-				margin: 0;
-				display: grid;
-				gap: 1rem;
-			}
-			.features li {
-				position: relative;
-				padding-left: 2rem;
-				color: var(--primary-foreground);
-				line-height: 1.6;
-			}
-			.features li::before {
-				content: "✓";
-				position: absolute;
-				left: 0;
-				color: var(--primary);
-				font-weight: bold;
-			}
-			.nav-cards {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-				gap: 2rem;
-				margin-top: 3rem;
-			}
-			.nav-card {
-				background: var(--primary-background);
-				border-radius: 16px;
-				box-shadow: var(--box-shadow);
-				padding: 2rem;
-				text-decoration: none;
-				transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				text-align: center;
-			}
-			.nav-card:hover {
-				transform: translateY(-8px);
-				box-shadow: var(--box-shadow);
-			}
-			.nav-card-icon {
-				width: 3rem;
-				height: 3rem;
-				margin-bottom: 1rem;
-				color: var(--primary);
-				flex-shrink: 0;
-			}
-			.nav-card-title {
-				font-size: 1.25rem;
-				font-weight: 600;
-				color: var(--primary-foreground);
-				margin-bottom: 0.5rem;
-			}
-			.nav-card-description {
-				color: var(--primary-foreground);
-				font-size: 0.9rem;
-				line-height: 1.5;
-			}
-			@media (max-width: 767px) {
-				main {
-					padding: 1rem 0;
-				}
-				.hero-section h1 {
-					font-size: 2rem;
-				}
-				.hero-section .subtitle {
-					font-size: 1rem;
-				}
-				.hero-section {
-					margin-bottom: 2rem;
-				}
-				.description {
-					margin-bottom: 2rem;
-					padding: 0 0.5rem;
-				}
-				.nav-cards {
-					grid-template-columns: 1fr;
-					gap: 1.5rem;
-					margin-top: 2rem;
-				}
-				.nav-card {
-					padding: 1.5rem;
-				}
-				.features {
-					padding: 1.5rem;
-					margin-bottom: 2rem;
-				}
-			}
-			@media (max-width: 480px) {
-				.content-wrapper {
-					padding: 0 0.5rem;
-				}
-				.hero-section h1 {
-					font-size: 1.75rem;
-				}
-				.hero-section .subtitle {
-					font-size: 0.9rem;
-				}
-				.features {
-					padding: 1rem;
-				}
-				.features h2 {
-					font-size: 1.25rem;
-				}
-				.features li {
-					font-size: 0.9rem;
-					padding-left: 1.5rem;
-				}
-				.nav-card {
-					padding: 1.25rem;
-				}
-				.nav-card-icon {
-					width: 2.5rem;
-					height: 2.5rem;
-				}
-				.nav-card-title {
-					font-size: 1.1rem;
-				}
-				.nav-card-description {
-					font-size: 0.85rem;
-				}
-			}
-		</style>
-	</head>
-	<body>
-		<Header />
-		<main class="home-page">
-			<div class="content-wrapper">
-				<Breadcrumb items={breadcrumbItems} />
-				<div class="hero-section">
+<ContentLayout
+	title={SITE_TITLE}
+	description={SITE_DESCRIPTION}
+	breadcrumbItems={breadcrumbItems}
+	schema={websiteSchema}
+	mainClass="home-page"
+	showBreadcrumb={false}
+>
+	<style>
+		/* Home page specific styles - use shared components */
+		main.home-page {
+			padding: 2rem 0;
+			overflow-x: hidden;
+		}
+	</style>
+
+	<div class="content-wrapper">
+		<div class="hero-section">
 					<h1>ABTA</h1>
 					<p class="subtitle"><em>A</em>stro - <em>B</em>log - <em>T</em>ags - <em>A</em>rchive</p>
 				</div>
@@ -303,9 +112,6 @@ const breadcrumbItems = [
 							</p>
 						</a>
 					)}
-				</nav>
-			</div>
-		</main>
-		<Footer />
-	</body>
-</html>
+			</nav>
+		</div>
+</ContentLayout>
