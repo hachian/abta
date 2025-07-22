@@ -3,6 +3,7 @@ import BaseHead from '../../../../components/BaseHead.astro';
 import Header from '../../../../components/Header.astro';
 import Footer from '../../../../components/Footer.astro';
 import BlogCardGrid from '../../../../components/BlogCardGrid.astro';
+import Breadcrumb from '../../../../components/Breadcrumb.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../../../consts';
 import { getCollection } from 'astro:content';
 
@@ -33,12 +34,40 @@ export async function getStaticPaths() {
 const { year, month } = Astro.params;
 const { posts } = Astro.props;
 const yearMonth = `${year}/${month}`;
+
+// CollectionPage構造化データ
+const collectionPageSchema = {
+	"@context": "https://schema.org",
+	"@type": "CollectionPage",
+	"name": `${yearMonth}の記事一覧`,
+	"description": `${yearMonth}に公開された記事の一覧ページです。`,
+	"url": new URL(Astro.url.pathname, Astro.site).href,
+	"inLanguage": "ja",
+	"isPartOf": {
+		"@type": "WebSite",
+		"name": "ABTA",
+		"url": Astro.site?.href
+	},
+	"numberOfItems": posts.length
+};
+
+// パンくずリスト用データ
+const breadcrumbItems = [
+	{ name: 'ホーム', url: '/' },
+	{ name: 'アーカイブ', url: '/archive/monthly/' },
+	{ name: '月別', url: '/archive/monthly/' },
+	{ name: yearMonth }
+];
+
+const pageTitle = `${yearMonth}の記事 - ${SITE_TITLE}`;
+const pageDescription = `${yearMonth}に公開された記事の一覧です。${posts.length}件の記事があります。`;
 ---
 
 <!doctype html>
 <html lang="ja">
 	<head>
-		<BaseHead title={`${yearMonth}の記事 - ${SITE_TITLE}`} description={`${yearMonth}の記事一覧`} />
+		<BaseHead title={pageTitle} description={pageDescription} />
+		<script type="application/ld+json" set:html={JSON.stringify(collectionPageSchema)}></script>
 		<style>
 			body {
 				background: var(--primary-background);
@@ -101,6 +130,7 @@ const yearMonth = `${year}/${month}`;
 		<Header />
 		<main>
 			<div class="container">
+				<Breadcrumb items={breadcrumbItems} />
 				<a href="/archive/monthly/" class="back-link">← 月別一覧</a>
 				<div class="page-header">
 					<h1>{yearMonth}の記事</h1>

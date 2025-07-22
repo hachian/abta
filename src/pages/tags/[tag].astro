@@ -3,6 +3,7 @@ import BaseHead from '../../components/BaseHead.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import BlogCardGrid from '../../components/BlogCardGrid.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 import { getCollection } from 'astro:content';
 
@@ -21,12 +22,39 @@ export async function getStaticPaths() {
 
 const { tag } = Astro.params;
 const { posts } = Astro.props;
+
+// CollectionPage構造化データ
+const collectionPageSchema = {
+	"@context": "https://schema.org",
+	"@type": "CollectionPage",
+	"name": `「${tag}」タグの記事一覧`,
+	"description": `「${tag}」タグが付けられた記事の一覧ページです。`,
+	"url": new URL(Astro.url.pathname, Astro.site).href,
+	"inLanguage": "ja",
+	"isPartOf": {
+		"@type": "WebSite",
+		"name": "ABTA",
+		"url": Astro.site?.href
+	},
+	"numberOfItems": posts.length
+};
+
+// パンくずリスト用データ
+const breadcrumbItems = [
+	{ name: 'ホーム', url: '/' },
+	{ name: 'タグ', url: '/tags/' },
+	{ name: tag }
+];
+
+const pageTitle = `「${tag}」タグの記事 - ${SITE_TITLE}`;
+const pageDescription = `「${tag}」タグが付けられた記事の一覧です。${posts.length}件の記事があります。`;
 ---
 
 <!doctype html>
 <html lang="ja">
 	<head>
-		<BaseHead title={`Posts tagged "${tag}" - ${SITE_TITLE}`} description={`Posts tagged with ${tag}`} />
+		<BaseHead title={pageTitle} description={pageDescription} />
+		<script type="application/ld+json" set:html={JSON.stringify(collectionPageSchema)}></script>
 		<style>
 			body {
 				background: var(--primary-background);
@@ -100,6 +128,7 @@ const { posts } = Astro.props;
 		<Header />
 		<main>
 			<div class="container">
+				<Breadcrumb items={breadcrumbItems} />
 				<a href="/tags/" class="back-link">← すべてのタグ</a>
 				<div class="page-header">
 					<div class="tag-badge">{tag}</div>

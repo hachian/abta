@@ -3,18 +3,45 @@ import BaseHead from '../../components/BaseHead.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import BlogCardGrid from '../../components/BlogCardGrid.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+
+// CollectionPage構造化データ
+const collectionPageSchema = {
+	"@context": "https://schema.org",
+	"@type": "CollectionPage",
+	"name": "ブログ記事一覧",
+	"description": "ABTAのブログ記事一覧ページです。すべての記事を新着順に表示しています。",
+	"url": new URL(Astro.url.pathname, Astro.site).href,
+	"inLanguage": "ja",
+	"isPartOf": {
+		"@type": "WebSite",
+		"name": "ABTA",
+		"url": Astro.site?.href
+	},
+	"numberOfItems": posts.length
+};
+
+// パンくずリスト用データ
+const breadcrumbItems = [
+	{ name: 'ホーム', url: '/' },
+	{ name: 'ブログ' }
+];
+
+const pageTitle = 'ブログ記事一覧';
+const pageDescription = 'ABTAのブログ記事一覧です。最新の記事から過去の記事まで、すべての記事をご覧いただけます。';
 ---
 
 <!doctype html>
 <html lang="ja">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={pageTitle} description={pageDescription} />
+		<script type="application/ld+json" set:html={JSON.stringify(collectionPageSchema)}></script>
 		<style>
 			body {
 				background: var(--primary-background);
@@ -38,7 +65,9 @@ const posts = (await getCollection('blog')).sort(
 		<Header />
 		<main>
 			<div class="container">
+				<Breadcrumb items={breadcrumbItems} />
 				<section>
+					<h1 style="text-align: center; margin: 2rem 0; color: var(--primary-foreground);">ブログ記事一覧</h1>
 					<BlogCardGrid posts={posts} />
 				</section>
 			</div>

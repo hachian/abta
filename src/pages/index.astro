@@ -2,13 +2,35 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
 import { SITE_TITLE, SITE_DESCRIPTION, FEATURES } from '../consts';
+
+// WebSite構造化データ
+const websiteSchema = {
+	"@context": "https://schema.org",
+	"@type": "WebSite",
+	"name": "ABTA",
+	"alternateName": "Astro Blog Tags Archive",
+	"url": Astro.site?.href,
+	"description": SITE_DESCRIPTION,
+	"publisher": {
+		"@type": "Organization",
+		"name": "ABTA"
+	},
+	"inLanguage": "ja"
+};
+
+// パンくずリスト用データ（ホームページは単一要素）
+const breadcrumbItems = [
+	{ name: 'ホーム' }
+];
 ---
 
 <!doctype html>
 <html lang="ja">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)}></script>
 		<style>
 			* {
 				box-sizing: border-box;
@@ -202,6 +224,7 @@ import { SITE_TITLE, SITE_DESCRIPTION, FEATURES } from '../consts';
 		<Header />
 		<main class="home-page">
 			<div class="content-wrapper">
+				<Breadcrumb items={breadcrumbItems} />
 				<div class="hero-section">
 					<h1>ABTA</h1>
 					<p class="subtitle"><em>A</em>stro - <em>B</em>log - <em>T</em>ags - <em>A</em>rchive</p>

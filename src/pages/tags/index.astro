@@ -2,6 +2,7 @@
 import BaseHead from '../../components/BaseHead.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 import { getCollection } from 'astro:content';
 
@@ -13,12 +14,38 @@ const tagCounts = allTags.reduce((acc, tag) => {
   acc[tag] = posts.filter(post => post.data.tags?.includes(tag)).length;
   return acc;
 }, {} as Record<string, number>);
+
+// CollectionPage構造化データ
+const collectionPageSchema = {
+	"@context": "https://schema.org",
+	"@type": "CollectionPage",
+	"name": "タグ一覧",
+	"description": "ABTAのブログ記事をタグ別に整理したページです。興味のあるトピックから記事を探すことができます。",
+	"url": new URL(Astro.url.pathname, Astro.site).href,
+	"inLanguage": "ja",
+	"isPartOf": {
+		"@type": "WebSite",
+		"name": "ABTA",
+		"url": Astro.site?.href
+	},
+	"numberOfItems": allTags.length
+};
+
+// パンくずリスト用データ
+const breadcrumbItems = [
+	{ name: 'ホーム', url: '/' },
+	{ name: 'タグ' }
+];
+
+const pageTitle = `タグ一覧 - ${SITE_TITLE}`;
+const pageDescription = 'ABTAのブログ記事をタグ別に整理したページです。興味のあるトピックから記事を探すことができます。';
 ---
 
 <!doctype html>
 <html lang="ja">
 	<head>
-		<BaseHead title={`Tags - ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+		<BaseHead title={pageTitle} description={pageDescription} />
+		<script type="application/ld+json" set:html={JSON.stringify(collectionPageSchema)}></script>
 		<style>
 			body {
 				background: var(--primary-background);
@@ -120,6 +147,7 @@ const tagCounts = allTags.reduce((acc, tag) => {
 		<Header />
 		<main>
 			<div class="container">
+				<Breadcrumb items={breadcrumbItems} />
 				<div class="page-header">
 					<h1>タグ一覧</h1>
 					<p class="page-description">タグから記事を探す</p>

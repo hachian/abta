@@ -7,6 +7,7 @@ import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 import TagCloud from '../components/TagCloud.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
 import { Image } from 'astro:assets';
 import { FEATURES } from '../consts';
 
@@ -14,12 +15,66 @@ type Props = CollectionEntry<'blog'>['data'] & {
 	headings: MarkdownHeading[];
 };
 
-const { title, description, pubDate, updatedDate, heroImage, tags, headings } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags, headings, author } = Astro.props;
+
+// 構造化データ用の情報準備
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// パンくずリスト用データ準備
+const breadcrumbItems = [
+	{ name: 'ホーム', url: '/' },
+	{ name: 'ブログ', url: '/blog/' },
+	{ name: title }
+];
+const blogPostingSchema = {
+	"@context": "https://schema.org",
+	"@type": "BlogPosting",
+	"headline": title,
+	"description": description,
+	"author": {
+		"@type": "Person",
+		"name": author || "ABTA"
+	},
+	"publisher": {
+		"@type": "Organization",
+		"name": "ABTA",
+		"logo": {
+			"@type": "ImageObject",
+			"url": `${Astro.site}favicon.svg`
+		}
+	},
+	"datePublished": pubDate.toISOString(),
+	"dateModified": (updatedDate || pubDate).toISOString(),
+	"mainEntityOfPage": {
+		"@type": "WebPage",
+		"@id": canonicalURL.href
+	},
+	"url": canonicalURL.href,
+	...(heroImage && {
+		"image": {
+			"@type": "ImageObject",
+			"url": `${Astro.site}${typeof heroImage === 'string' ? heroImage.replace(/^\//, '') : heroImage.src?.replace(/^\//, '')}`,
+			"width": "1020",
+			"height": "510"
+		}
+	}),
+	...(tags && tags.length > 0 && {
+		"keywords": tags.join(", ")
+	})
+};
 ---
 
 <html lang="ja">
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead 
+			title={title} 
+			description={description}
+			type="article"
+			publishedTime={pubDate}
+			modifiedTime={updatedDate}
+			author={author}
+		/>
+		<script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)}></script>
 		<style>
 			main {
 				width: 100%;
@@ -206,9 +261,10 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
 		<Header />
 		<main>
 			<div class="hero-image">
-				{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
+				{heroImage && <Image width={1020} height={510} src={heroImage} alt={`${title}の記事のヒーロー画像`} />}
 			</div>
 			<div class="container">
+				<Breadcrumb items={breadcrumbItems} />
 				<div class={`content-wrapper ${!FEATURES.TAGS_ENABLED || !tags ? 'no-tags' : ''}`}>
 					{FEATURES.TAGS_ENABLED && tags && (
 						<aside class="tag-cloud-sidebar">

@@ -1,0 +1,87 @@
+---
+interface Props {
+  items: Array<{
+    name: string;
+    url?: string;
+  }>;
+}
+
+const { items } = Astro.props;
+
+// 構造化データの準備
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": items.map((item, index) => ({
+    "@type": "ListItem",
+    "position": index + 1,
+    "name": item.name,
+    ...(item.url && { "item": `${Astro.site}${item.url.replace(/^\//, '')}` })
+  }))
+};
+---
+
+<nav aria-label="パンくずリスト" class="breadcrumb">
+  <ol class="breadcrumb-list">
+    {items.map((item, index) => (
+      <li class="breadcrumb-item">
+        {item.url ? (
+          <a href={item.url}>{item.name}</a>
+        ) : (
+          <span aria-current="page">{item.name}</span>
+        )}
+        {index < items.length - 1 && (
+          <span class="breadcrumb-separator" aria-hidden="true">›</span>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
+
+<style>
+  .breadcrumb {
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-foreground);
+  }
+  
+  .breadcrumb-item a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  
+  .breadcrumb-item a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+  }
+  
+  .breadcrumb-item span[aria-current="page"] {
+    color: var(--primary-foreground);
+    font-weight: 500;
+  }
+  
+  .breadcrumb-separator {
+    color: var(--primary);
+    font-weight: bold;
+    user-select: none;
+  }
+</style>
