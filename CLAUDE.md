@@ -41,11 +41,21 @@ ABTA (Astro Blog Tags Archive) は、日本語ブログ執筆者向けに最適�
 - `src/components/` - 再利用可能なAstroコンポーネント
 - `BaseHead.astro` - 共通のHTMLメタデータ設定
 - `Header.astro` - ナビゲーションヘッダー（Home, Blog, Tags, Archive, About）
+- **共通コンポーネント（2025/7/22リファクタリング）**:
+  - `BlogCard.astro` - ブログ記事カード表示（画像、タイトル、日付、タグ）
+  - `BlogCardGrid.astro` - BlogCardのグリッドレイアウト
+  - `SocialLinks.astro` - ソーシャルメディアリンク（Header/Footerで使用）
+  - `Icon.astro` - SVGアイコン（calendar、refresh）
 - TypeScript厳密モードが有効
 
 ### 設定ファイル
 
-- `src/consts.ts` - サイト全体の定数（SITE_TITLE, SITE_DESCRIPTION等）
+- `src/consts.ts` - サイト全体の定数
+  - `SITE_TITLE` - サイトタイトル（ABTA）
+  - `SITE_DESCRIPTION` - サイト説明
+  - `BLOG_IMAGE_WIDTH` / `BLOG_IMAGE_HEIGHT` - ブログ画像サイズ（720x360）
+  - `GRID_MIN_WIDTH` - グリッド最小幅（350px）
+  - `CARD_MAX_WIDTH_DESKTOP` / `CARD_MAX_WIDTH_TABLET` - カード最大幅
 - `astro.config.mjs` - サイトURL、統合設定（MDX、サイトマップ）
 - Content Collectionsのスキーマは`src/content/config.ts`で定義
 
@@ -76,9 +86,10 @@ ABTA (Astro Blog Tags Archive) は、日本語ブログ執筆者向けに最適�
 - **引用ブロック**: 95%サイズ（`0.95em`）・行間1.6
 
 #### ブログ一覧ページ（`src/pages/blog/index.astro`）とタグページ（`src/pages/tags/[tag].astro`）
+- **共通コンポーネント使用**: BlogCardGrid + BlogCardコンポーネント
 - CSS Gridを使用したカードベースのレスポンシブレイアウト
 - **グリッド設定**: `repeat(auto-fill, minmax(350px, 1fr))`で左寄せ配置
-- **カード一貫性**: ブログ一覧とタグページで完全に統一されたカードデザイン
+- **カード一貫性**: 全ページ（ブログ一覧、タグ、アーカイブ）で統一されたカードデザイン
 - 全記事が統一されたカードサイズで表示
 - ホバーエフェクト：カードの浮き上がりと画像のズーム効果
 - タグデザイン：`var(--primary-dark)`を使用し、統一されたスタイル
@@ -137,11 +148,11 @@ ABTA (Astro Blog Tags Archive) は、日本語ブログ執筆者向けに最適�
   - 月別・年別間のナビゲーションタブ（年別がアクティブ）
 - **月別記事一覧ページ** (`/archive/monthly/2025/06/`):
   - 特定月の記事一覧
-  - 既存タグページと同様のカードレイアウト
+  - BlogCardGrid + BlogCardコンポーネント使用
   - 戻りリンクとシンプルなページヘッダー「2025/06の記事」
 - **年別記事一覧ページ** (`/archive/yearly/2025/`):
   - 特定年の記事一覧
-  - 既存タグページと同様のカードレイアウト
+  - BlogCardGrid + BlogCardコンポーネント使用
   - 戻りリンクとシンプルなページヘッダー「2025年の記事」
 - **ナビゲーション機能**:
   - 月別・年別一覧ページ間をワンクリックで切り替え可能
@@ -175,6 +186,7 @@ ABTA (Astro Blog Tags Archive) は、日本語ブログ執筆者向けに最適�
 - 画像最適化にSharpを使用
 - **デザイン変更時は既存のCSS変数を使用し、新しい色は定義しない**
 - **日本語サイトとして最適化済み - 言語設定やフォント変更時は注意**
+- **コンポーネント化済み** - BlogCard、Icon、SocialLinksは再利用可能
 
 ### プロジェクト情報
 

@@ -3,3 +3,12 @@
 
 export const SITE_TITLE = 'ABTA';
 export const SITE_DESCRIPTION = '日本語に最適化されたAstroブログテンプレート';
+
+// Image dimensions
+export const BLOG_IMAGE_WIDTH = 720;
+export const BLOG_IMAGE_HEIGHT = 360;
+
+// Grid settings
+export const GRID_MIN_WIDTH = 350; // px
+export const CARD_MAX_WIDTH_DESKTOP = 400; // px
+export const CARD_MAX_WIDTH_TABLET = 500; // px
