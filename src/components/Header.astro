@@ -7,22 +7,66 @@ import { SITE_TITLE, FEATURES } from '../consts';
 <header>
 	<nav>
 		<h2><a href="/">{SITE_TITLE}</a></h2>
-		<div class="internal-links">
-			<HeaderLink href="/">Home</HeaderLink>
-			<HeaderLink href="/blog">Blog</HeaderLink>
-			{FEATURES.TAGS_ENABLED && <HeaderLink href="/tags">Tags</HeaderLink>}
-			{FEATURES.ARCHIVE_ENABLED && <HeaderLink href="/archive/monthly">Archive</HeaderLink>}
-			<HeaderLink href="/about">About</HeaderLink>
+		<button class="menu-toggle" aria-label="メニューを開く" aria-expanded="false">
+			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<line x1="3" y1="6" x2="21" y2="6"></line>
+				<line x1="3" y1="12" x2="21" y2="12"></line>
+				<line x1="3" y1="18" x2="21" y2="18"></line>
+			</svg>
+		</button>
+		<div class="nav-content">
+			<div class="internal-links">
+				<HeaderLink href="/">Home</HeaderLink>
+				<HeaderLink href="/blog">Blog</HeaderLink>
+				{FEATURES.TAGS_ENABLED && <HeaderLink href="/tags">Tags</HeaderLink>}
+				{FEATURES.ARCHIVE_ENABLED && <HeaderLink href="/archive/monthly">Archive</HeaderLink>}
+				<HeaderLink href="/about">About</HeaderLink>
+			</div>
+			<SocialLinks />
 		</div>
-		<SocialLinks />
 	</nav>
 </header>
+
+<script>
+	const menuToggle = document.querySelector('.menu-toggle') as HTMLButtonElement;
+	const navContent = document.querySelector('.nav-content') as HTMLDivElement;
+	
+	if (menuToggle && navContent) {
+		menuToggle.addEventListener('click', () => {
+			const isOpen = navContent.classList.toggle('is-open');
+			menuToggle.setAttribute('aria-expanded', String(isOpen));
+			menuToggle.setAttribute('aria-label', isOpen ? 'メニューを閉じる' : 'メニューを開く');
+		});
+		
+		// メニュー外をクリックしたら閉じる
+		document.addEventListener('click', (e) => {
+			if (!menuToggle.contains(e.target as Node) && !navContent.contains(e.target as Node)) {
+				navContent.classList.remove('is-open');
+				menuToggle.setAttribute('aria-expanded', 'false');
+				menuToggle.setAttribute('aria-label', 'メニューを開く');
+			}
+		});
+		
+		// Escキーでメニューを閉じる
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && navContent.classList.contains('is-open')) {
+				navContent.classList.remove('is-open');
+				menuToggle.setAttribute('aria-expanded', 'false');
+				menuToggle.setAttribute('aria-label', 'メニューを開く');
+				menuToggle.focus();
+			}
+		});
+	}
+</script>
+
 <style>
 	header {
 		margin: 0;
 		padding: 0 1em;
 		background: var(--primary-background);
 		box-shadow: 0 2px 8px oklch(12% 0.02 260 / 0.05);
+		position: relative;
+		z-index: 999;
 	}
 	h2 {
 		margin: 0;
@@ -37,7 +81,38 @@ import { SITE_TITLE, FEATURES } from '../consts';
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		min-height: 3.5rem;
 	}
+	
+	.menu-toggle {
+		display: none;
+		background: none;
+		border: none;
+		padding: 0.5em;
+		cursor: pointer;
+		color: var(--primary-foreground);
+		transition: opacity 0.2s ease;
+	}
+	
+	.menu-toggle:hover {
+		opacity: 0.7;
+	}
+	
+	.nav-content {
+		display: flex;
+		align-items: center;
+		gap: 2em;
+		flex: 1;
+		justify-content: space-between;
+		margin-left: 2em;
+	}
+	
+	.internal-links {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+	}
+	
 	nav a {
 		padding: 1em 0.5em;
 		color: var(--primary-foreground);
@@ -48,9 +123,62 @@ import { SITE_TITLE, FEATURES } from '../consts';
 		text-decoration: none;
 		border-bottom-color: var(--primary);
 	}
-	@media (max-width: 720px) {
+	
+	/* モバイルスタイル */
+	@media (max-width: 768px) {
+		.menu-toggle {
+			display: block;
+		}
+		
+		.nav-content {
+			position: absolute;
+			top: 100%;
+			left: 0;
+			right: 0;
+			background: var(--primary-background);
+			box-shadow: var(--box-shadow);
+			flex-direction: column;
+			padding: 1em;
+			gap: 1em;
+			margin-left: 0;
+			max-height: 0;
+			overflow: hidden;
+			opacity: 0;
+			transition: max-height 0.3s ease, opacity 0.3s ease;
+			z-index: 1000;
+		}
+		
+		.nav-content.is-open {
+			max-height: 500px;
+			opacity: 1;
+		}
+		
+		.internal-links {
+			flex-direction: column;
+			width: 100%;
+			gap: 0;
+		}
+		
+		.internal-links a {
+			width: 100%;
+			padding: 0.75em 1em;
+			border-bottom: 1px solid oklch(90% 0.01 262);
+		}
+		
+		.internal-links a:last-child {
+			border-bottom: none;
+		}
+		
+		.internal-links a.active {
+			border-left: 4px solid var(--primary);
+			background: oklch(95% 0.01 262);
+		}
+		
 		:global(.social-links) {
-			display: none;
+			width: 100%;
+			justify-content: center;
+			padding-top: 1em;
+			border-top: 1px solid oklch(90% 0.01 262);
 		}
 	}
 </style>
