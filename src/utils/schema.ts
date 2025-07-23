@@ -136,9 +136,3 @@ export function createBlogPostSchema(
 	};
 }
 
-/**
- * スキーマオブジェクトをJSON-LD文字列に変換する
- */
-export function schemaToJsonLd(schema: BaseSchema | WebSiteSchema | CollectionPageSchema | BlogPostSchema): string {
-	return JSON.stringify(schema);
-}

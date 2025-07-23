@@ -16,7 +16,7 @@ const { post } = Astro.props;
 	<a href={`/blog/${post.id}/`} class="card-link">
 		{post.data.heroImage && (
 			<div class="card-image">
-				<Image width={BLOG_IMAGE_WIDTH} height={BLOG_IMAGE_HEIGHT} src={post.data.heroImage} alt="" />
+				<Image width={BLOG_IMAGE_WIDTH} height={BLOG_IMAGE_HEIGHT} src={post.data.heroImage} alt="" loading="lazy" />
 			</div>
 		)}
 		<div class="card-content">
@@ -36,7 +36,7 @@ const { post } = Astro.props;
 			{FEATURES.TAGS_ENABLED && post.data.tags && post.data.tags.length > 0 && (
 				<div class="tags">
 					{post.data.tags.map(tag => (
-						<a href={`/tags/${tag}/`} class="tag" onclick="(e) => e.stopPropagation()">
+						<a href={`/tags/${tag}/`} class="tag">
 							{tag}
 						</a>
 					))}

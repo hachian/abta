@@ -7,7 +7,7 @@ heroImage: ''
 
 - [[second-post]]
 - [second-post](/blog/second-post/)
-- [second-post](http://localhost:4321/blog/second-post/)
+- [second-post](/blog/second-post/)
 
 ~~strike~~  ==highlight==
 
