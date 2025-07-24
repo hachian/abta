@@ -140,7 +140,8 @@ export const FEATURES = {
 {
   "site": {
     "title": "ABTA",
-    "description": "日本語に最適化されたAstroブログテンプレート"
+    "description": "日本語に最適化されたAstroブログテンプレート",
+    "author": "ABTA"
   },
   "features": {
     "tagsEnabled": true,
@@ -152,6 +153,18 @@ export const FEATURES = {
   },
   "theme": {
     "primaryHue": 262
+  },
+  "seo": {
+    "defaultOgImage": "/og-default.png",
+    "locale": "ja_JP"
+  },
+  "footer": {
+    "copyrightText": "ABTA Project. All rights reserved.",
+    "startYear": null
+  },
+  "analytics": {
+    "googleAnalyticsId": "",
+    "enabled": false
   },
   "socialLinks": {
     "mastodon": {
@@ -195,6 +208,7 @@ export const FEATURES = {
 **サイト基本情報:**
 - `site.title`: サイトタイトル
 - `site.description`: サイトの説明文（メタデータとして使用）
+- `site.author`: サイトの著者名（デフォルト: "ABTA"）
 
 **機能制御:**
 - `features.tagsEnabled`: タグ機能の有効/無効
@@ -222,6 +236,18 @@ export const FEATURES = {
 
 この値を変更することで、サイト全体の配色を簡単に変更できます。すべての色（プライマリ、ダーク、ライト、背景、前景）が自動的に調整されます。
 
+**SEO設定:**
+- `seo.defaultOgImage`: デフォルトのOGP画像パス（記事にheroImageがない場合に使用。空文字列の場合は`src/assets/blog-placeholder-1.jpg`を使用）
+- `seo.locale`: サイトのロケール（デフォルト: "ja_JP"）
+
+**フッター設定:**
+- `footer.copyrightText`: コピーライトのテキスト（デフォルト: "ABTA Project. All rights reserved."）
+- `footer.startYear`: コピーライト開始年。設定すると「2023-2025」形式で年範囲を表示（nullの場合は現在年のみ）
+
+**アナリティクス設定:**
+- `analytics.googleAnalyticsId`: Google Analytics 4の測定ID（例: "G-XXXXXXXXXX"）
+- `analytics.enabled`: アナリティクスの有効/無効（デフォルト: false）
+
 **ソーシャルリンク設定:**
 - `socialLinks`: 各ソーシャルプラットフォームのURL設定と表示制御
 - 対応プラットフォーム:
@@ -237,6 +263,7 @@ export const FEATURES = {
   - `url`: プロフィールページのURL
   - `enabled`: 表示する場合は`true`、非表示の場合は`false`
 - 有効にしたプラットフォームのアイコンがヘッダーとフッターに表示されます
+- Twitter/XのURLは自動的にパースされ、`twitter:site`メタタグに使用されます
 
 ### 設定変更後の注意
 

@@ -2,6 +2,8 @@
  * Schema.ts - 構造化データ生成ユーティリティ
  */
 
+import { SITE_AUTHOR } from '../consts';
+
 interface BaseSchema {
 	"@context": "https://schema.org";
 	"@type": string;
@@ -55,7 +57,7 @@ export function createWebSiteSchema(
 	description: string,
 	siteUrl: string,
 	alternateName?: string,
-	publisherName = "ABTA"
+	publisherName = SITE_AUTHOR
 ): WebSiteSchema {
 	return {
 		"@context": "https://schema.org",
@@ -108,8 +110,8 @@ export function createBlogPostSchema(
 	pageUrl: string,
 	publishDate: Date,
 	updateDate: Date,
-	authorName = "ABTA",
-	publisherName = "ABTA",
+	authorName = SITE_AUTHOR,
+	publisherName = SITE_AUTHOR,
 	tags?: string[],
 	heroImage?: string
 ): BlogPostSchema {

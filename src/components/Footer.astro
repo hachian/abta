@@ -1,10 +1,19 @@
 ---
 import SocialLinks from './SocialLinks.astro';
+import { FOOTER } from '../consts';
+
 const today = new Date();
+const currentYear = today.getFullYear();
+
+// 年表示のロジック
+let yearDisplay = currentYear.toString();
+if (FOOTER.START_YEAR && FOOTER.START_YEAR < currentYear) {
+	yearDisplay = `${FOOTER.START_YEAR}-${currentYear}`;
+}
 ---
 
 <footer>
-	&copy; {today.getFullYear()} ABTA Project. All rights reserved.
+	&copy; {yearDisplay} {FOOTER.COPYRIGHT_TEXT}
 	<SocialLinks class="footer-social-links" />
 </footer>
 <style>

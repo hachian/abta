@@ -13,7 +13,7 @@ import TableOfContents from './TableOfContents.astro';
 import TagCloud from './TagCloud.astro';
 import Breadcrumb from './Breadcrumb.astro';
 import { Image } from 'astro:assets';
-import { FEATURES } from '../consts';
+import { FEATURES, SITE_AUTHOR } from '../consts';
 import { createBlogPostSchema } from '../utils/schema.ts';
 
 type Props = CollectionEntry<'blog'>['data'] & {
@@ -36,8 +36,8 @@ const blogPostingSchema = createBlogPostSchema(
 	new URL(Astro.url.pathname, Astro.site).href,
 	pubDate,
 	updatedDate || pubDate,
-	author || "ABTA",
-	"ABTA",
+	author || SITE_AUTHOR,
+	SITE_AUTHOR,
 	tags,
 	typeof heroImage === 'string' ? heroImage : heroImage?.src
 );
