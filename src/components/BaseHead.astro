@@ -2,7 +2,7 @@
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import '../styles/global.css';
-import { SITE_TITLE } from '../consts';
+import { SITE_TITLE, PRIMARY_HUE } from '../consts';
 import FallbackImage from '../assets/blog-placeholder-1.jpg';
 import type { ImageMetadata } from 'astro';
 
@@ -97,3 +97,6 @@ const organizationSchema = {
 
 <!-- Organization構造化データ -->
 <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)}></script>
+
+<!-- CSS変数の設定 -->
+<style is:inline set:html={`:root { --primary-hue: ${PRIMARY_HUE}; }`} />

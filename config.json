@@ -1,0 +1,51 @@
+{
+  "site": {
+    "title": "ABTA",
+    "description": "日本語に最適化されたAstroブログテンプレート"
+  },
+  "features": {
+    "tagsEnabled": true,
+    "archiveEnabled": true
+  },
+  "sidebar": {
+    "archiveLimit": 5,
+    "tagLimit": 7
+  },
+  "theme": {
+    "primaryHue": 262
+  },
+  "socialLinks": {
+    "mastodon": {
+      "url": "",
+      "enabled": false
+    },
+    "twitter": {
+      "url": "https://x.com/_hachian",
+      "enabled": true
+    },
+    "github": {
+      "url": "https://github.com/hachian/abta",
+      "enabled": true
+    },
+    "steam": {
+      "url": "https://steamcommunity.com/id/hachian/",
+      "enabled": true
+    },
+    "facebook": {
+      "url": "",
+      "enabled": false
+    },
+    "youtube": {
+      "url": "",
+      "enabled": false
+    },
+    "instagram": {
+      "url": "",
+      "enabled": false
+    },
+    "discord": {
+      "url": "",
+      "enabled": false
+    }
+  }
+}

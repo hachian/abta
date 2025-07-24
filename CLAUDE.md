@@ -130,18 +130,117 @@ export const FEATURES = {
 
 各機能を無効にすると、対応するナビゲーションリンク、ページ要素、コンポーネント内の表示が自動的に非表示になります。
 
-## サイドバー表示設定
+## サイト設定
 
-`src/consts.ts`でサイドバーに表示するタグと月別アーカイブの最大数を設定できます。
+サイトの基本設定は`config.json`ファイルで管理されています。このファイルを編集することで、コードを変更することなく設定をカスタマイズできます。
 
-```typescript
-export const SIDEBAR_TAG_LIMIT = 7;        // サイドバーに表示するタグの最大数（0 = 無制限）
-export const SIDEBAR_ARCHIVE_LIMIT = 5;    // サイドバーに表示する月別アーカイブの最大数（0 = 無制限）
+### 設定ファイル構造
+
+```json
+{
+  "site": {
+    "title": "ABTA",
+    "description": "日本語に最適化されたAstroブログテンプレート"
+  },
+  "features": {
+    "tagsEnabled": true,
+    "archiveEnabled": true
+  },
+  "sidebar": {
+    "archiveLimit": 5,
+    "tagLimit": 7
+  },
+  "theme": {
+    "primaryHue": 262
+  },
+  "socialLinks": {
+    "mastodon": {
+      "url": "",
+      "enabled": false
+    },
+    "twitter": {
+      "url": "https://x.com/yourhandle",
+      "enabled": true
+    },
+    "github": {
+      "url": "https://github.com/yourusername",
+      "enabled": true
+    },
+    "steam": {
+      "url": "https://steamcommunity.com/id/yourid/",
+      "enabled": false
+    },
+    "facebook": {
+      "url": "",
+      "enabled": false
+    },
+    "youtube": {
+      "url": "",
+      "enabled": false
+    },
+    "instagram": {
+      "url": "",
+      "enabled": false
+    },
+    "discord": {
+      "url": "",
+      "enabled": false
+    }
+  }
+}
 ```
 
+### 設定項目の説明
+
+**サイト基本情報:**
+- `site.title`: サイトタイトル
+- `site.description`: サイトの説明文（メタデータとして使用）
+
+**機能制御:**
+- `features.tagsEnabled`: タグ機能の有効/無効
+- `features.archiveEnabled`: アーカイブ機能の有効/無効
+
+**サイドバー表示設定:**
+- `sidebar.tagLimit`: サイドバーに表示するタグの最大数（0 = 無制限）
+- `sidebar.archiveLimit`: サイドバーに表示する月別アーカイブの最大数（0 = 無制限）
 - タグは記事数の多い順に表示されます
 - 月別アーカイブは新しい順に表示されます
 - 制限数を超える項目がある場合は「すべて見る」リンクが表示されます
+
+**カラーテーマ設定:**
+- `theme.primaryHue`: プライマリカラーの色相（hue）値（0-360）
+
+色相値の例：
+- 0 / 360: 赤
+- 30: オレンジ
+- 60: 黄色
+- 120: 緑
+- 180: シアン
+- 240: 青
+- 262: デフォルト値（青紫）
+- 300: マゼンタ
+
+この値を変更することで、サイト全体の配色を簡単に変更できます。すべての色（プライマリ、ダーク、ライト、背景、前景）が自動的に調整されます。
+
+**ソーシャルリンク設定:**
+- `socialLinks`: 各ソーシャルプラットフォームのURL設定と表示制御
+- 対応プラットフォーム:
+  - `mastodon`: Mastodon
+  - `twitter`: X (Twitter) 
+  - `github`: GitHub
+  - `steam`: Steam
+  - `facebook`: Facebook
+  - `youtube`: YouTube
+  - `instagram`: Instagram
+  - `discord`: Discord
+- 各プラットフォームで以下を設定:
+  - `url`: プロフィールページのURL
+  - `enabled`: 表示する場合は`true`、非表示の場合は`false`
+- 有効にしたプラットフォームのアイコンがヘッダーとフッターに表示されます
+
+### 設定変更後の注意
+
+`config.json`を変更した後は、開発サーバーを再起動してください。
 
 ## 注意事項
 
