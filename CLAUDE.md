@@ -48,6 +48,10 @@ ABTA (Astro Blog Tags Archive) は、日本語ブログ執筆者向けに最適�
 ### 設定ファイル
 
 - `src/consts.ts` - サイト全体の定数と機能フラグ
+  - `FEATURES.TAGS_ENABLED` - タグ機能の有効/無効
+  - `FEATURES.ARCHIVE_ENABLED` - アーカイブ機能の有効/無効
+  - `SIDEBAR_TAG_LIMIT` - サイドバーに表示するタグの最大数（0 = 無制限）
+  - `SIDEBAR_ARCHIVE_LIMIT` - サイドバーに表示する月別アーカイブの最大数（0 = 無制限）
 - `astro.config.mjs` - サイトURL、統合設定（MDX、サイトマップ）
 - `src/content/config.ts` - Content Collectionsスキーマ
 
@@ -125,6 +129,19 @@ export const FEATURES = {
 ```
 
 各機能を無効にすると、対応するナビゲーションリンク、ページ要素、コンポーネント内の表示が自動的に非表示になります。
+
+## サイドバー表示設定
+
+`src/consts.ts`でサイドバーに表示するタグと月別アーカイブの最大数を設定できます。
+
+```typescript
+export const SIDEBAR_TAG_LIMIT = 7;        // サイドバーに表示するタグの最大数（0 = 無制限）
+export const SIDEBAR_ARCHIVE_LIMIT = 5;    // サイドバーに表示する月別アーカイブの最大数（0 = 無制限）
+```
+
+- タグは記事数の多い順に表示されます
+- 月別アーカイブは新しい順に表示されます
+- 制限数を超える項目がある場合は「すべて見る」リンクが表示されます
 
 ## 注意事項
 

@@ -18,3 +18,7 @@ export const FEATURES = {
 	TAGS_ENABLED: true,      // タグ機能の有効/無効
 	ARCHIVE_ENABLED: true,   // アーカイブ機能の有効/無効
 };
+
+// Sidebar settings
+export const SIDEBAR_ARCHIVE_LIMIT = 5; // サイドバーに表示する月別アーカイブの最大数
+export const SIDEBAR_TAG_LIMIT = 7; // サイドバーに表示するタグの最大数（0 = 無制限）

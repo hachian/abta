@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import { FEATURES } from '../consts';
+import { FEATURES, SIDEBAR_ARCHIVE_LIMIT, SIDEBAR_TAG_LIMIT } from '../consts';
 
 const posts = await getCollection('blog');
 const allTags = posts.flatMap(post => post.data.tags || []);
@@ -12,19 +12,21 @@ const tagCounts = allTags.reduce((acc, tag) => {
 }, {} as Record<string, number>);
 
 // タグを記事数でソート
-const sortedTags = Object.entries(tagCounts)
+let sortedTags = Object.entries(tagCounts)
   .sort(([, a], [, b]) => b - a)
   .map(([tag, count]) => ({ tag, count }));
+
+// タグ数制限を適用（0の場合は無制限）
+if (SIDEBAR_TAG_LIMIT > 0) {
+  sortedTags = sortedTags.slice(0, SIDEBAR_TAG_LIMIT);
+}
 
 // 最大記事数を取得（フォントサイズ計算用）
 const maxCount = Math.max(...Object.values(tagCounts));
 
-// フォントサイズを計算（3段階）
+// フォントサイズを統一
 const getFontSize = (count: number) => {
-  const ratio = count / maxCount;
-  if (ratio > 0.6) return '0.875rem';
-  if (ratio > 0.3) return '0.75rem';
-  return '0.625rem';
+  return '0.75rem'; // すべてのタグで同じサイズ
 };
 
 // 月別アーカイブデータを生成
@@ -41,11 +43,15 @@ const yearMonthCounts = allYearMonths.reduce((acc, yearMonth) => {
   return acc;
 }, {} as Record<string, number>);
 
-// 月別データを新しい順にソートして上位5件を取得
-const sortedYearMonths = Object.entries(yearMonthCounts)
+// 月別データを新しい順にソート
+let sortedYearMonths = Object.entries(yearMonthCounts)
   .sort(([a], [b]) => b.localeCompare(a))
-  .slice(0, 5)
   .map(([yearMonth, count]) => ({ yearMonth, count }));
+
+// アーカイブ数制限を適用（0の場合は無制限）
+if (SIDEBAR_ARCHIVE_LIMIT > 0) {
+  sortedYearMonths = sortedYearMonths.slice(0, SIDEBAR_ARCHIVE_LIMIT);
+}
 ---
 
 <div class="tag-cloud">
@@ -64,6 +70,9 @@ const sortedYearMonths = Object.entries(yearMonthCounts)
           </a>
         ))}
       </div>
+      {SIDEBAR_TAG_LIMIT > 0 && Object.keys(tagCounts).length > SIDEBAR_TAG_LIMIT && (
+        <a href="/tags/" class="tag-all-link">すべて見る</a>
+      )}
     </>
   )}
   
@@ -84,7 +93,9 @@ const sortedYearMonths = Object.entries(yearMonthCounts)
           );
         })}
       </div>
-      <a href="/archive/monthly/" class="archive-all-link">すべて見る</a>
+      {SIDEBAR_ARCHIVE_LIMIT > 0 && Object.keys(yearMonthCounts).length > SIDEBAR_ARCHIVE_LIMIT && (
+        <a href="/archive/monthly/" class="archive-all-link">すべて見る</a>
+      )}
     </div>
   )}
 </div>
@@ -151,7 +162,7 @@ const sortedYearMonths = Object.entries(yearMonthCounts)
 
   h4 {
     margin: 0 0 0.75rem 0;
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: var(--primary-foreground);
     text-align: center;
     font-weight: 600;
@@ -195,6 +206,24 @@ const sortedYearMonths = Object.entries(yearMonthCounts)
   }
 
   .archive-all-link:hover {
+    background: oklch(var(--primary) / 0.1);
+    color: var(--primary-dark);
+  }
+
+  .tag-all-link {
+    display: block;
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.75rem;
+    text-align: center;
+    padding: 0.25rem 0;
+    margin-top: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+
+  .tag-all-link:hover {
     background: oklch(var(--primary) / 0.1);
     color: var(--primary-dark);
   }
