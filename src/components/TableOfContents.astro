@@ -68,7 +68,7 @@ const TableOfContentsHeading = Astro.self;
 	</nav>
 )}
 
-{Astro.props.heading && (
+{Astro.props.heading && Astro.props.heading.depth && (
 	<li class={`toc-item toc-depth-${Astro.props.heading.depth}`}>
 		<a 
 			href={`#${Astro.props.heading.slug}`} 
