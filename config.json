@@ -33,16 +33,16 @@
       "enabled": false
     },
     "twitter": {
-      "url": "https://x.com/_hachian",
-      "enabled": true
+      "url": "",
+      "enabled": false
     },
     "github": {
-      "url": "https://github.com/hachian/abta",
-      "enabled": true
+      "url": "",
+      "enabled": false
     },
     "steam": {
-      "url": "https://steamcommunity.com/id/hachian/",
-      "enabled": true
+      "url": "",
+      "enabled": false
     },
     "facebook": {
       "url": "",

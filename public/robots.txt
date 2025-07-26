@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://abta.hachian.com/sitemap-index.xml
+Sitemap: https://example.com/sitemap-index.xml

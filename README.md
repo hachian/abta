@@ -27,7 +27,7 @@
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/yourusername/abta.git
+git clone https://github.com/your-username/abta.git
 cd abta
 
 # 依存関係をインストール
@@ -63,17 +63,20 @@ tags: ['タグ1', 'タグ2']
 ### 機能の詳細
 
 #### 目次機能
+
 - H2、H3見出しから自動で目次を生成
 - デスクトップ・タブレット：画面上部に固定でスクロール追従
 - モバイル：右下に折りたたみ可能な目次を表示
 
 #### アーカイブ機能
+
 - 月別・年別で記事を自動分類
 - `/archive/monthly/` - 月別一覧ページ
 - `/archive/yearly/` - 年別一覧ページ
 - 個別の月・年ページも自動生成
 
 #### タグ機能
+
 - 記事のフロントマターで `tags: ['タグ1', 'タグ2']` を設定
 - `/tags/` - 全タグ一覧ページ
 - `/tags/タグ名` - 個別タグページ
@@ -89,16 +92,38 @@ tags: ['タグ1', 'タグ2']
 
 ## 🎨 カスタマイズ
 
-### サイト情報の変更
+### 基本設定（必須）
 
-`src/consts.ts` でサイトのタイトルと説明を設定：
+#### 1. サイトURL設定
 
-```typescript
-export const SITE_TITLE = 'あなたのブログタイトル';
-export const SITE_DESCRIPTION = 'あなたのブログの説明';
+`astro.config.mjs` でサイトのURLを設定（サイトマップ生成に必要）：
+
+```javascript
+export default defineConfig({
+  site: 'https://yourdomain.com', // あなたのドメインに変更
+  integrations: [mdx(), sitemap()],
+});
 ```
 
-### カラーテーマ
+#### 2. サイト基本情報
+
+`config.json` でサイトの基本情報を設定：
+
+```json
+{
+  "site": {
+    "title": "あなたのブログタイトル",
+    "description": "あなたのブログの説明文",
+    "author": "あなたの名前"
+  }
+}
+```
+
+> **設定の仕組み**: 全ての設定は`config.json`で管理され、`src/consts.ts`が自動的に読み込みます。ユーザーは`config.json`のみを編集してください。
+
+### その他の設定
+
+#### カラーテーマ
 
 `src/styles/global.css` でOKLCH色空間を使用したカラー変数を調整：
 
@@ -112,7 +137,7 @@ export const SITE_DESCRIPTION = 'あなたのブログの説明';
 }
 ```
 
-### 機能フラグの設定
+#### 機能フラグの設定
 
 `src/consts.ts` でタグ機能とアーカイブ機能を個別にオン/オフ制御：
 
@@ -123,7 +148,7 @@ export const FEATURES = {
 };
 ```
 
-### ブログ画像設定
+#### ブログ画像設定
 
 `src/consts.ts` でヒーロー画像のサイズを設定：
 
@@ -132,13 +157,49 @@ export const BLOG_IMAGE_WIDTH = 720;  // px
 export const BLOG_IMAGE_HEIGHT = 360; // px
 ```
 
-### ソーシャルリンク
+#### ソーシャルリンク設定
 
-`src/components/SocialLinks.astro` でソーシャルメディアのリンクを更新できます。
+`config.json` でソーシャルメディアのリンクを設定：
+
+```json
+{
+  "socialLinks": {
+    "twitter": {
+      "url": "https://twitter.com/your-username",
+      "enabled": true
+    },
+    "github": {
+      "url": "https://github.com/your-username",
+      "enabled": true
+    }
+  }
+}
+```
+
+#### Google Analytics設定
+
+`config.json` でGoogle Analyticsを設定：
+
+```json
+{
+  "analytics": {
+    "googleAnalyticsId": "G-XXXXXXXXXX",
+    "enabled": true
+  }
+}
+```
+
+#### robots.txt更新
+
+`public/robots.txt` のサイトマップURLを変更：
+
+```txt
+Sitemap: https://yourdomain.com/sitemap-index.xml
+```
 
 ## 📂 プロジェクト構造
 
-```
+```text
 /
 ├── public/           # 静的ファイル
 ├── src/
@@ -158,6 +219,7 @@ export const BLOG_IMAGE_HEIGHT = 360; // px
 │   ├── styles/       # グローバルスタイル
 │   └── consts.ts     # サイト設定・機能フラグ
 ├── astro.config.mjs  # Astro設定
+├── config.json       # 設定ファイル
 ├── package.json
 └── tsconfig.json
 ```
