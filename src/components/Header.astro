@@ -81,7 +81,7 @@ import { SITE_TITLE, FEATURES } from '../consts';
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		min-height: 3.5rem;
+		min-height: 4.5rem;
 	}
 	
 	.menu-toggle {
@@ -126,6 +126,10 @@ import { SITE_TITLE, FEATURES } from '../consts';
 	
 	/* モバイルスタイル */
 	@media (max-width: 768px) {
+		nav {
+			min-height: 4.5rem;
+		}
+		
 		.menu-toggle {
 			display: block;
 		}
