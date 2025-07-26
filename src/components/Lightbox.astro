@@ -1,0 +1,146 @@
+---
+/**
+ * Lightbox.astro - 画像拡大表示コンポーネント
+ * - クリックで画像を拡大表示
+ * - ESCキーまたはオーバーレイクリックで閉じる
+ * - アクセシビリティ対応
+ */
+---
+
+<div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="拡大画像表示">
+	<div class="lightbox-overlay" aria-hidden="true"></div>
+	<div class="lightbox-content">
+		<button class="lightbox-close" aria-label="閉じる">
+			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<line x1="18" y1="6" x2="6" y2="18"></line>
+				<line x1="6" y1="6" x2="18" y2="18"></line>
+			</svg>
+		</button>
+		<img class="lightbox-image" alt="" />
+		<div class="lightbox-caption" aria-live="polite"></div>
+	</div>
+</div>
+
+<script>
+	// ライトボックスの初期化と制御
+	class Lightbox {
+		constructor() {
+			this.lightbox = document.getElementById('lightbox');
+			this.overlay = this.lightbox.querySelector('.lightbox-overlay');
+			this.closeButton = this.lightbox.querySelector('.lightbox-close');
+			this.image = this.lightbox.querySelector('.lightbox-image');
+			this.caption = this.lightbox.querySelector('.lightbox-caption');
+			this.isOpen = false;
+			this.focusedElementBeforeOpen = null;
+			
+			this.init();
+		}
+		
+		init() {
+			// 画像クリックイベントの設定
+			this.setupImageClickHandlers();
+			
+			// 閉じるイベントの設定
+			this.closeButton.addEventListener('click', () => this.close());
+			this.overlay.addEventListener('click', () => this.close());
+			
+			// キーボードイベント
+			document.addEventListener('keydown', (e) => {
+				if (this.isOpen && e.key === 'Escape') {
+					this.close();
+				}
+			});
+			
+			// ライトボックス画像のクリックでも閉じる
+			this.image.addEventListener('click', (e) => {
+				e.stopPropagation();
+				this.close();
+			});
+		}
+		
+		setupImageClickHandlers() {
+			// ヒーロー画像
+			const heroImage = document.querySelector('.hero-image img');
+			if (heroImage) {
+				heroImage.style.cursor = 'zoom-in';
+				heroImage.addEventListener('click', () => {
+					this.open(heroImage.src, heroImage.alt);
+				});
+			}
+			
+			// ブログ記事内の画像
+			const contentImages = document.querySelectorAll('.prose img');
+			contentImages.forEach(img => {
+				// 親要素がリンクでない場合のみクリック可能にする
+				if (img.parentElement.tagName !== 'A') {
+					img.style.cursor = 'zoom-in';
+					img.addEventListener('click', () => {
+						this.open(img.src, img.alt);
+					});
+				}
+			});
+		}
+		
+		open(src, alt) {
+			// 現在のフォーカス要素を保存
+			this.focusedElementBeforeOpen = document.activeElement;
+			
+			// 画像とキャプションを設定
+			this.image.src = src;
+			this.image.alt = alt;
+			this.caption.textContent = alt || '';
+			
+			// ライトボックスを表示
+			this.lightbox.classList.add('active');
+			this.isOpen = true;
+			
+			// スクロールを無効化
+			document.body.style.overflow = 'hidden';
+			
+			// フォーカスを閉じるボタンに移動
+			this.closeButton.focus();
+			
+			// フォーカストラップを設定
+			this.trapFocus();
+		}
+		
+		close() {
+			// ライトボックスを非表示
+			this.lightbox.classList.remove('active');
+			this.isOpen = false;
+			
+			// スクロールを有効化
+			document.body.style.overflow = '';
+			
+			// フォーカスを元の要素に戻す
+			if (this.focusedElementBeforeOpen) {
+				this.focusedElementBeforeOpen.focus();
+			}
+		}
+		
+		trapFocus() {
+			const focusableElements = this.lightbox.querySelectorAll(
+				'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+			);
+			const firstFocusable = focusableElements[0];
+			const lastFocusable = focusableElements[focusableElements.length - 1];
+			
+			this.lightbox.addEventListener('keydown', (e) => {
+				if (e.key !== 'Tab') return;
+				
+				if (e.shiftKey && document.activeElement === firstFocusable) {
+					e.preventDefault();
+					lastFocusable.focus();
+				} else if (!e.shiftKey && document.activeElement === lastFocusable) {
+					e.preventDefault();
+					firstFocusable.focus();
+				}
+			});
+		}
+	}
+	
+	// DOMContentLoadedでライトボックスを初期化
+	document.addEventListener('DOMContentLoaded', () => {
+		new Lightbox();
+	});
+</script>

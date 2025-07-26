@@ -12,6 +12,7 @@ import FormattedDate from './FormattedDate.astro';
 import TableOfContents from './TableOfContents.astro';
 import TagCloud from './TagCloud.astro';
 import Breadcrumb from './Breadcrumb.astro';
+import Lightbox from './Lightbox.astro';
 import { Image } from 'astro:assets';
 import { FEATURES, SITE_AUTHOR } from '../consts';
 import { createBlogPostSchema } from '../utils/schema.ts';
@@ -314,5 +315,6 @@ const blogPostingSchema = createBlogPostSchema(
 			</div>
 		</main>
 		<Footer />
+		<Lightbox />
 	</body>
 </html>
