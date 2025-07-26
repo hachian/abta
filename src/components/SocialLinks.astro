@@ -53,35 +53,253 @@ const socialPlatforms = {
 const enabledPlatforms = Object.entries(config.socialLinks)
 	.filter(([key, platform]) => platform.enabled && platform.url)
 	.map(([key, platform]) => ({ key, ...platform }));
+
+// 横幅largeで表示するアイコンの最大数
+const MAX_VISIBLE_ICONS = 3;
+const visiblePlatforms = enabledPlatforms.slice(0, MAX_VISIBLE_ICONS);
+const overflowPlatforms = enabledPlatforms.slice(MAX_VISIBLE_ICONS);
+const hasOverflow = overflowPlatforms.length > 0;
 ---
 
 <div class={`social-links ${className}`}>
-	{enabledPlatforms.map(({ key, url }) => {
-		const platform = socialPlatforms[key];
-		if (!platform) return null;
-		
-		return (
-			<a href={url} target="_blank" rel="noopener noreferrer">
-				<span class="sr-only">{platform.label}</span>
+	{/* デスクトップ: 最初の3つのアイコンを表示 */}
+	<div class="social-links-visible">
+		{visiblePlatforms.map(({ key, url }) => {
+			const platform = socialPlatforms[key];
+			if (!platform) return null;
+			
+			return (
+				<a href={url} target="_blank" rel="noopener noreferrer">
+					<span class="sr-only">{platform.label}</span>
+					<svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
+						<path fill="currentColor" d={platform.path}></path>
+					</svg>
+				</a>
+			);
+		})}
+	</div>
+	
+	{/* モバイル: 4つ目以降のアイコンも表示 */}
+	<div class="social-links-mobile-overflow">
+		{overflowPlatforms.map(({ key, url }) => {
+			const platform = socialPlatforms[key];
+			if (!platform) return null;
+			
+			return (
+				<a href={url} target="_blank" rel="noopener noreferrer">
+					<span class="sr-only">{platform.label}</span>
+					<svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
+						<path fill="currentColor" d={platform.path}></path>
+					</svg>
+				</a>
+			);
+		})}
+	</div>
+	
+	{/* デスクトップ: 三点リーダーメニュー（4つ以上のアイコンがある場合） */}
+	{hasOverflow && (
+		<div class="social-links-overflow">
+			<button 
+				class="overflow-toggle" 
+				aria-label="その他のソーシャルリンク" 
+				aria-expanded="false"
+				type="button"
+			>
 				<svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
-					<path fill="currentColor" d={platform.path}></path>
+					<circle cx="2" cy="8" r="1.5" fill="currentColor" />
+					<circle cx="8" cy="8" r="1.5" fill="currentColor" />
+					<circle cx="14" cy="8" r="1.5" fill="currentColor" />
 				</svg>
-			</a>
-		);
-	})}
+			</button>
+			<div class="overflow-menu" role="menu">
+				{overflowPlatforms.map(({ key, url }) => {
+					const platform = socialPlatforms[key];
+					if (!platform) return null;
+					
+					return (
+						<a href={url} target="_blank" rel="noopener noreferrer" role="menuitem">
+							<svg viewBox="0 0 16 16" aria-hidden="true" width="20" height="20">
+								<path fill="currentColor" d={platform.path}></path>
+							</svg>
+							<span>{platform.name}</span>
+						</a>
+					);
+				})}
+			</div>
+		</div>
+	)}
 </div>
+
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		const overflowToggles = document.querySelectorAll('.overflow-toggle');
+		
+		overflowToggles.forEach(toggle => {
+			const menu = toggle.nextElementSibling as HTMLElement;
+			
+			toggle.addEventListener('click', (e) => {
+				e.stopPropagation();
+				const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+				toggle.setAttribute('aria-expanded', (!isOpen).toString());
+				menu.classList.toggle('is-open');
+			});
+		});
+		
+		// メニュー外クリックで閉じる
+		document.addEventListener('click', () => {
+			overflowToggles.forEach(toggle => {
+				const menu = toggle.nextElementSibling as HTMLElement;
+				toggle.setAttribute('aria-expanded', 'false');
+				menu.classList.remove('is-open');
+			});
+		});
+		
+		// ESCキーで閉じる
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') {
+				overflowToggles.forEach(toggle => {
+					const menu = toggle.nextElementSibling as HTMLElement;
+					toggle.setAttribute('aria-expanded', 'false');
+					menu.classList.remove('is-open');
+				});
+			}
+		});
+	});
+</script>
 
 <style>
 	.social-links {
 		display: flex;
+		align-items: center;
 		gap: 1em;
 	}
+	
+	.social-links-visible {
+		display: flex;
+		gap: 1em;
+	}
+	
 	.social-links a {
 		text-decoration: none;
 		color: var(--primary-foreground);
 		transition: opacity 0.2s ease;
 	}
+	
 	.social-links a:hover {
 		opacity: 0.7;
+	}
+	
+	/* モバイル用の追加アイコン */
+	.social-links-mobile-overflow {
+		display: none;
+		gap: 1em;
+	}
+	
+	/* 三点リーダーメニュー */
+	.social-links-overflow {
+		position: relative;
+		display: none;
+	}
+	
+	.overflow-toggle {
+		background: none;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+		color: var(--primary-foreground);
+		transition: opacity 0.2s ease;
+		display: flex;
+		align-items: center;
+	}
+	
+	.overflow-toggle:hover {
+		opacity: 0.7;
+	}
+	
+	.overflow-toggle:focus {
+		outline: 2px solid var(--primary);
+		outline-offset: 2px;
+		border-radius: 4px;
+	}
+	
+	.overflow-menu {
+		position: absolute;
+		top: 100%;
+		right: 0;
+		margin-top: 0.5rem;
+		background: var(--primary-background);
+		border: 1px solid oklch(90% 0.01 262);
+		border-radius: 8px;
+		box-shadow: var(--box-shadow);
+		min-width: 200px;
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(-10px);
+		transition: all 0.2s ease;
+		z-index: 1000;
+	}
+	
+	.overflow-menu.is-open {
+		opacity: 1;
+		visibility: visible;
+		transform: translateY(0);
+	}
+	
+	.overflow-menu a {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.75rem 1rem;
+		color: var(--primary-foreground);
+		text-decoration: none;
+		transition: background-color 0.2s ease;
+		white-space: nowrap;
+	}
+	
+	.overflow-menu a:hover {
+		background-color: oklch(95% 0.01 262);
+		opacity: 1;
+	}
+	
+	.overflow-menu a:first-child {
+		border-radius: 7px 7px 0 0;
+	}
+	
+	.overflow-menu a:last-child {
+		border-radius: 0 0 7px 7px;
+	}
+	
+	.overflow-menu a:only-child {
+		border-radius: 7px;
+	}
+	
+	/* largeサイズ以上で三点リーダーを表示 */
+	@media (min-width: 769px) {
+		.social-links-overflow {
+			display: block;
+		}
+		
+		.social-links-mobile-overflow {
+			display: none !important;
+		}
+	}
+	
+	/* モバイルでは全アイコンを表示 */
+	@media (max-width: 768px) {
+		.social-links {
+			flex-wrap: wrap;
+		}
+		
+		.social-links-visible {
+			flex-wrap: wrap;
+		}
+		
+		.social-links-mobile-overflow {
+			display: flex;
+		}
+		
+		.social-links-overflow {
+			display: none !important;
+		}
 	}
 </style>
