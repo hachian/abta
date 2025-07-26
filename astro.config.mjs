@@ -5,6 +5,6 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://hachian.github.io/abta',
+	site: 'https://abta.hachian.com',
 	integrations: [mdx(), sitemap()],
 });

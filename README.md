@@ -110,7 +110,7 @@ export default defineConfig({
 **独自ドメインを使用する場合：**
 ```javascript
 export default defineConfig({
-  site: 'https://yourdomain.com', // あなたのドメインに変更
+  site: 'https://abta.hachian.com', // あなたのドメインに変更
   integrations: [mdx(), sitemap()],
 });
 ```
@@ -210,10 +210,22 @@ Sitemap: https://hachian.github.io/abta/sitemap-index.xml
 
 **独自ドメインの場合：**
 ```txt
-Sitemap: https://yourdomain.com/sitemap-index.xml
+Sitemap: https://abta.hachian.com/sitemap-index.xml
 ```
 
 ## 🚀 デプロイ
+
+### Cloudflare Pagesへのデプロイ（推奨）
+
+1. **GitHubリポジトリをCloudflare Pagesに接続**
+   - [Cloudflare Pages](https://pages.cloudflare.com/) にアクセス
+   - GitHubリポジトリを接続
+   - ビルドコマンド: `npm run build`
+   - 出力ディレクトリ: `dist`
+
+2. **自動デプロイ**
+   - mainブランチへのプッシュで自動デプロイ
+   - `wrangler.jsonc`設定済み
 
 ### GitHub Pagesへのデプロイ
 
