@@ -1,17 +1,48 @@
 ---
-title: 'First post'
-description: 'Lorem ipsum dolor sit amet'
-pubDate: '2022-07-08'
+title: 'ABTAテンプレートへようこそ'
+description: 'ABTA（Astro Blog Tags Archive）は日本語ブログ執筆者のために最適化されたAstroブログテンプレートです。'
+pubDate: '2025-01-15'
 heroImage: './hero.jpg'
-tags: ['blog', 'tutorial']
+tags: ['ブログ', 'テンプレート', 'Astro']
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
+## ABTAについて
 
-Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc. Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra massa massa ultricies mi.
+ABTA（Astro Blog Tags Archive）は、日本語ブログ執筆者のために特別に設計されたAstroベースのブログテンプレートです。シンプルでありながら強力な機能を備え、美しいブログサイトを簡単に構築することができます。
 
-Mollis nunc sed id semper risus in. Convallis a cras semper auctor neque. Diam sit amet nisl suscipit. Lacus viverra vitae congue eu consequat ac felis donec. Egestas integer eget aliquet nibh praesent tristique magna sit amet. Eget magna fermentum iaculis eu non diam. In vitae turpis massa sed elementum. Tristique et egestas quis ipsum suspendisse ultrices. Eget lorem dolor sed viverra ipsum. Vel turpis nunc eget lorem dolor sed viverra. Posuere ac ut consequat semper viverra nam. Laoreet suspendisse interdum consectetur libero id faucibus. Diam phasellus vestibulum lorem sed risus ultricies tristique. Rhoncus dolor purus non enim praesent elementum facilisis. Ultrices tincidunt arcu non sodales neque. Tempus egestas sed sed risus pretium quam vulputate. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Fringilla urna porttitor rhoncus dolor purus non. Amet dictum sit amet justo donec enim.
+## 主な特徴
 
-Mattis ullamcorper velit sed ullamcorper morbi tincidunt. Tortor posuere ac ut consequat semper viverra. Tellus mauris a diam maecenas sed enim ut sem viverra. Venenatis urna cursus eget nunc scelerisque viverra mauris in. Arcu ac tortor dignissim convallis aenean et tortor at. Curabitur gravida arcu ac tortor dignissim convallis aenean et tortor. Egestas tellus rutrum tellus pellentesque eu. Fusce ut placerat orci nulla pellentesque dignissim enim sit amet. Ut enim blandit volutpat maecenas volutpat blandit aliquam etiam. Id donec ultrices tincidunt arcu. Id cursus metus aliquam eleifend mi.
+### 日本語最適化
 
-Tempus quam pellentesque nec nam aliquam sem. Risus at ultrices mi tempus imperdiet. Id porta nibh venenatis cras sed felis eget velit. Ipsum a arcu cursus vitae. Facilisis magna etiam tempor orci eu lobortis elementum. Tincidunt dui ut ornare lectus sit. Quisque non tellus orci ac. Blandit libero volutpat sed cras. Nec tincidunt praesent semper feugiat nibh sed pulvinar proin gravida. Egestas integer eget aliquet nibh praesent tristique magna.
+- **Noto Sans JPフォント**: 日本語の読みやすさを重視したフォント選択
+- **適切な行間**: 1.8の行間で日本語文章の可読性を向上
+- **完全日本語UI**: すべてのUI要素が日本語に最適化
+
+### 豊富な機能
+
+- **タグ機能**: 記事をカテゴリ別に整理・検索
+- **時系列アーカイブ**: 月別・年別の記事一覧表示
+- **目次機能**: 記事内の見出しから自動生成される目次
+- **レスポンシブデザイン**: あらゆるデバイスで美しく表示
+
+### 開発者体験
+
+このテンプレートは、開発者の生産性を重視して設計されています：
+
+- **Astro 5**: 最新の静的サイトジェネレーター
+- **TypeScript**: 型安全性による開発効率の向上
+- **設定ファイル**: `config.json`による簡単なカスタマイズ
+- **機能フラグ**: 不要な機能を簡単にオン/オフ切り替え
+
+## カスタマイズの始め方
+
+1. **基本設定**: `config.json`でサイト情報を更新
+2. **デザイン調整**: CSS変数でカラーテーマを変更
+3. **機能選択**: 必要な機能のみを有効化
+4. **記事作成**: `src/content/blog/`フォルダに新しい記事を追加
+
+## さいごに
+
+ABTAを使用して、あなただけの素晴らしい日本語ブログサイトを構築してください。このテンプレートが、あなたのブログ執筆活動をより楽しく、より効率的にすることを願っています。
+
+詳細なドキュメントは[README.md](https://github.com/your-username/abta)をご参照ください。

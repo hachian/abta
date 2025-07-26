@@ -28,31 +28,31 @@
     "enabled": false
   },
   "socialLinks": {
-    "mastodon": {
-      "url": "",
-      "enabled": false
-    },
     "twitter": {
-      "url": "",
+      "url": "https://twitter.com/your-username",
       "enabled": false
     },
     "github": {
-      "url": "",
+      "url": "https://github.com/your-username",
       "enabled": false
     },
-    "steam": {
-      "url": "",
+    "mastodon": {
+      "url": "https://mastodon.social/@your-username",
+      "enabled": false
+    },
+    "youtube": {
+      "url": "https://www.youtube.com/@your-channel",
       "enabled": false
     },
     "facebook": {
       "url": "",
       "enabled": false
     },
-    "youtube": {
+    "instagram": {
       "url": "",
       "enabled": false
     },
-    "instagram": {
+    "steam": {
       "url": "",
       "enabled": false
     },
