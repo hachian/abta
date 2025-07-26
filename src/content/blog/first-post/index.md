@@ -45,4 +45,4 @@ ABTA（Astro Blog Tags Archive）は、日本語ブログ執筆者のために�
 
 ABTAを使用して、あなただけの素晴らしい日本語ブログサイトを構築してください。このテンプレートが、あなたのブログ執筆活動をより楽しく、より効率的にすることを願っています。
 
-詳細なドキュメントは[README.md](https://github.com/your-username/abta)をご参照ください。
+詳細なドキュメントは[README.md](https://github.com/hachian/abta)をご参照ください。

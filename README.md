@@ -28,7 +28,7 @@
 
 ```bash
 # リポジトリをクローン（あなたのユーザー名に変更してください）
-git clone https://github.com/your-username/abta.git
+git clone https://github.com/hachian/abta.git
 cd abta
 
 # 依存関係をインストール
@@ -102,7 +102,7 @@ tags: ['タグ1', 'タグ2']
 **GitHub Pagesを使用する場合：**
 ```javascript
 export default defineConfig({
-  site: 'https://your-username.github.io/abta', // GitHubユーザー名とリポジトリ名に変更
+  site: 'https://hachian.github.io/abta', // GitHubユーザー名とリポジトリ名に変更
   integrations: [mdx(), sitemap()],
 });
 ```
@@ -205,7 +205,7 @@ export const BLOG_IMAGE_HEIGHT = 360; // px
 
 **GitHub Pagesの場合：**
 ```txt
-Sitemap: https://your-username.github.io/abta/sitemap-index.xml
+Sitemap: https://hachian.github.io/abta/sitemap-index.xml
 ```
 
 **独自ドメインの場合：**
