@@ -32,6 +32,21 @@ import { SITE_TITLE, FEATURES } from '../consts';
 	const navContent = document.querySelector('.nav-content') as HTMLDivElement;
 	
 	if (menuToggle && navContent) {
+		// 初期表示を設定
+		function handleResize() {
+			// リサイズ時はメニューを閉じる
+			navContent.classList.remove('is-open');
+			menuToggle.setAttribute('aria-expanded', 'false');
+			menuToggle.setAttribute('aria-label', 'メニューを開く');
+		}
+		
+		// リサイズを監視
+		let resizeTimer: number;
+		window.addEventListener('resize', () => {
+			clearTimeout(resizeTimer);
+			resizeTimer = setTimeout(handleResize, 100);
+		});
+		
 		menuToggle.addEventListener('click', () => {
 			const isOpen = navContent.classList.toggle('is-open');
 			menuToggle.setAttribute('aria-expanded', String(isOpen));
@@ -124,6 +139,7 @@ import { SITE_TITLE, FEATURES } from '../consts';
 		border-bottom-color: var(--primary);
 	}
 	
+	
 	/* モバイルスタイル */
 	@media (max-width: 768px) {
 		nav {
@@ -135,6 +151,7 @@ import { SITE_TITLE, FEATURES } from '../consts';
 		}
 		
 		.nav-content {
+			display: none;
 			position: absolute;
 			top: 100%;
 			left: 0;
@@ -145,17 +162,13 @@ import { SITE_TITLE, FEATURES } from '../consts';
 			padding: 1em;
 			gap: 1em;
 			margin-left: 0;
-			max-height: 0;
-			overflow: hidden;
-			opacity: 0;
-			transition: max-height 0.3s ease, opacity 0.3s ease;
 			z-index: 1000;
 		}
 		
 		.nav-content.is-open {
-			max-height: 500px;
-			opacity: 1;
+			display: flex;
 		}
+		
 		
 		.internal-links {
 			flex-direction: column;
