@@ -1,5 +1,7 @@
 # ABTA - Astro Blog Tags Archive
 
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-abta.hachian.com-blue?style=for-the-badge)](https://abta.hachian.com/)
+
 [![Lighthouse Desktop](./lighthouse_results/abta_hachian_com_desktop.svg)](https://abta.hachian.com/)
 [![Lighthouse Mobile](./lighthouse_results/abta_hachian_com_mobile.svg)](https://abta.hachian.com/)
 
@@ -356,6 +358,19 @@ ABTAは**最小限の依存関係**で最大限の機能を実現します：
 | Lighthouseスコア | **100点** | 80-95点 | 85-95点 |
 
 ABTAは**「シンプルこそ最強」**の哲学で設計されています。
+
+## 💡 GitHubリポジトリの設定
+
+### Website URLの設定
+
+GitHubリポジトリページの右側「About」セクションにWebsiteを表示するには：
+
+1. GitHubリポジトリページの右上「⚙️ Settings」をクリック
+2. 「General」→「About」セクション
+3. 「Website」に `https://abta.hachian.com` を入力
+4. 「Save changes」で保存
+
+これにより、リポジトリページからワンクリックでライブデモにアクセスできます。
 
 ## 🤝 貢献
 
