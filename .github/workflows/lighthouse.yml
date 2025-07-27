@@ -31,91 +31,85 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install Lighthouse CLI
+        run: npm install -g lighthouse
+
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+
       - name: Create lighthouse results directory
         run: mkdir -p lighthouse_results
 
-      - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v12
-        with:
-          urls: |
-            https://abta.hachian.com/
-          configPath: './lighthouserc.js'
-          uploadArtifacts: false
-          temporaryPublicStorage: false
+      - name: Run Lighthouse
+        run: |
+          echo "Running Lighthouse on https://abta.hachian.com/"
+          lighthouse https://abta.hachian.com/ \
+            --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage" \
+            --output=json \
+            --output-path=./lighthouse_results/lighthouse-report.json \
+            --preset=desktop
 
       - name: Generate Badges from Results
         run: |
-          echo "Generating badges from Lighthouse CI results..."
+          echo "Generating badges from Lighthouse results..."
           
-          # Lighthouse CIの結果を探す
-          RESULTS_DIR=".lighthouseci"
-          if [ -d "$RESULTS_DIR" ]; then
-            echo "Found Lighthouse CI results directory"
-            ls -la $RESULTS_DIR/
+          if [ -f "./lighthouse_results/lighthouse-report.json" ]; then
+            echo "Found Lighthouse report file"
             
-            # JSONファイルを見つける
-            DESKTOP_JSON=$(find $RESULTS_DIR -name "*.json" | head -1)
-            if [ -f "$DESKTOP_JSON" ]; then
-              echo "Found results file: $DESKTOP_JSON"
+            # JSONファイルからスコアを抽出してバッジ生成
+            node -e "
+              const fs = require('fs');
+              const https = require('https');
               
-              # Node.jsでJSONをパースしてバッジ生成
-              node -e "
-                const fs = require('fs');
-                const https = require('https');
-                
-                function downloadBadge(url, filename) {
-                  return new Promise((resolve, reject) => {
-                    console.log(\`Downloading badge: \${filename}\`);
-                    https.get(url, (res) => {
-                      if (res.statusCode !== 200) {
-                        reject(new Error(\`HTTP \${res.statusCode}: \${res.statusMessage}\`));
-                        return;
-                      }
-                      let data = '';
-                      res.on('data', chunk => data += chunk);
-                      res.on('end', () => {
-                        fs.writeFileSync(filename, data);
-                        console.log(\`Badge saved: \${filename}\`);
-                        resolve();
-                      });
-                    }).on('error', reject);
-                  });
+              function downloadBadge(url, filename) {
+                return new Promise((resolve, reject) => {
+                  console.log('Downloading badge: ' + filename);
+                  https.get(url, (res) => {
+                    if (res.statusCode !== 200) {
+                      reject(new Error('HTTP ' + res.statusCode + ': ' + res.statusMessage));
+                      return;
+                    }
+                    let data = '';
+                    res.on('data', chunk => data += chunk);
+                    res.on('end', () => {
+                      fs.writeFileSync(filename, data);
+                      console.log('Badge saved: ' + filename);
+                      resolve();
+                    });
+                  }).on('error', reject);
+                });
+              }
+              
+              async function generateBadges() {
+                try {
+                  const report = JSON.parse(fs.readFileSync('./lighthouse_results/lighthouse-report.json', 'utf8'));
+                  
+                  const perf = Math.round(report.categories.performance.score * 100);
+                  const access = Math.round(report.categories.accessibility.score * 100);
+                  const bp = Math.round(report.categories['best-practices'].score * 100);
+                  const seo = Math.round(report.categories.seo.score * 100);
+                  
+                  console.log('Lighthouse scores:', perf, access, bp, seo);
+                  
+                  // デスクトップバッジ
+                  const desktopUrl = 'https://img.shields.io/badge/Desktop-' + perf + '%7C' + access + '%7C' + bp + '%7C' + seo + '-brightgreen?style=flat&logo=lighthouse&logoColor=white';
+                  await downloadBadge(desktopUrl, './lighthouse_results/abta_hachian_com_desktop.svg');
+                  
+                  // モバイルバッジ（同じスコアを使用）
+                  const mobileUrl = 'https://img.shields.io/badge/Mobile-' + perf + '%7C' + access + '%7C' + bp + '%7C' + seo + '-brightgreen?style=flat&logo=lighthouse&logoColor=white';
+                  await downloadBadge(mobileUrl, './lighthouse_results/abta_hachian_com_mobile.svg');
+                  
+                  console.log('Badges generated successfully');
+                } catch (error) {
+                  console.error('Error generating badges:', error);
+                  process.exit(1);
                 }
-                
-                async function generateBadges() {
-                  try {
-                    const report = JSON.parse(fs.readFileSync('$DESKTOP_JSON', 'utf8'));
-                    
-                    const perf = Math.round(report.categories.performance.score * 100);
-                    const access = Math.round(report.categories.accessibility.score * 100);
-                    const bp = Math.round(report.categories['best-practices'].score * 100);
-                    const seo = Math.round(report.categories.seo.score * 100);
-                    
-                    console.log('Lighthouse scores:', perf, access, bp, seo);
-                    
-                    // デスクトップバッジ
-                    const desktopUrl = \`https://img.shields.io/badge/Desktop-\${perf}%7C\${access}%7C\${bp}%7C\${seo}-brightgreen?style=flat&logo=lighthouse&logoColor=white\`;
-                    await downloadBadge(desktopUrl, './lighthouse_results/abta_hachian_com_desktop.svg');
-                    
-                    // モバイルバッジ（同じスコアを使用）
-                    const mobileUrl = \`https://img.shields.io/badge/Mobile-\${perf}%7C\${access}%7C\${bp}%7C\${seo}-brightgreen?style=flat&logo=lighthouse&logoColor=white\`;
-                    await downloadBadge(mobileUrl, './lighthouse_results/abta_hachian_com_mobile.svg');
-                    
-                    console.log('Badges generated successfully');
-                  } catch (error) {
-                    console.error('Error generating badges:', error);
-                    process.exit(1);
-                  }
-                }
-                
-                generateBadges();
-              "
-            else
-              echo "No JSON results found"
-              exit 1
-            fi
+              }
+              
+              generateBadges();
+            "
           else
-            echo "No Lighthouse CI results directory found"
+            echo "No Lighthouse report found"
             exit 1
           fi
 
