@@ -53,7 +53,7 @@ import { SITE_TITLE, FEATURES } from '../consts';
 		// パッシブリスナーとデバウンス
 		let t;
 		addEventListener('resize', () => { clearTimeout(t); t = setTimeout(close, 100); }, {passive: true});
-		addEventListener('click', e => !m.contains(e.target) && !n.contains(e.target) && close());
+		addEventListener('click', e => e.target && !m.contains(e.target) && !n.contains(e.target) && close());
 		addEventListener('keydown', e => e.key === 'Escape' && n.classList.contains('is-open') && (close(), m.focus()));
 	}
 	

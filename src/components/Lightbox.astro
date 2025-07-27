@@ -125,7 +125,7 @@
 	// 超軽量セットアップ: イベント委譲使用
 	addEventListener('click', e => {
 		const t = e.target;
-		if (t.tagName === 'IMG' && (t.closest('.hero-image') || (t.closest('.prose') && !t.closest('a')))) {
+		if (t && t.tagName === 'IMG' && (t.closest('.hero-image') || (t.closest('.prose') && !t.closest('a')))) {
 			t.style.cursor = 'zoom-in';
 			initializeLightbox().open(t.src, t.alt);
 		}
