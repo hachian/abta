@@ -1,5 +1,8 @@
 # ABTA - Astro Blog Tags Archive
 
+![Lighthouse Performance](./lighthouse_results/abta_hachian_com_desktop.svg)
+![Lighthouse Performance](./lighthouse_results/abta_hachian_com_mobile.svg)
+
 日本語ブログ執筆者のために最適化された、シンプルで高機能なAstroブログテンプレートです。
 
 ## 🌟 特徴

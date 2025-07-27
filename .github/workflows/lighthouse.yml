@@ -1,0 +1,38 @@
+name: Lighthouse Badge
+
+on:
+  # プッシュ時に実行（mainブランチのみ）
+  push:
+    branches: [ main ]
+  
+  # 週次実行（日曜日の深夜2時）
+  schedule:
+    - cron: '0 2 * * 0'
+  
+  # 手動実行を可能にする
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  lighthouse-badger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Generate Lighthouse Badge
+        uses: MyActionWay/lighthouse-badger-action@v2.2
+        with:
+          urls: https://abta.hachian.com/
+          badges_args: -b pagespeed -o lighthouse_results -r
+          audit_type: both
+          mobile_lighthouse_params: '--throttling.cpuSlowdownMultiplier=2'
+          desktop_lighthouse_params: '--preset=desktop --throttling.cpuSlowdownMultiplier=1'
+          user_name: hachian
+          user_email: jamjam8an@gmail.com
+          commit_message: 'docs: update lighthouse badges [skip ci]'
+          max_push_attempts: 5
