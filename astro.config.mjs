@@ -9,8 +9,7 @@ export default defineConfig({
 	integrations: [mdx(), sitemap()],
 	build: {
 		inlineStylesheets: 'auto',
-		assets: '_astro',
-		assetsPrefix: '/_astro'
+		assets: '_astro'
 	},
 	compressHTML: true,
 	prefetch: {

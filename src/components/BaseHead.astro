@@ -2,7 +2,6 @@
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import '../styles/global.css';
-import criticalCSS from '../styles/critical.css?raw';
 import { SITE_TITLE, PRIMARY_HUE, SEO, SITE_AUTHOR, ANALYTICS } from '../consts';
 import config from '../../config.json';
 import FallbackImage from '../assets/blog-placeholder-1.jpg';
@@ -120,12 +119,8 @@ const organizationSchema = {
 <!-- Organization構造化データ -->
 <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)}></script>
 
-<!-- Critical CSS inline -->
-<style is:inline set:html={`:root { --primary-hue: ${PRIMARY_HUE}; } ${criticalCSS}`} />
-
-<!-- Non-critical CSS loaded asynchronously -->
-<link rel="preload" href="/_astro/global.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="/_astro/global.css"></noscript>
+<!-- CSS変数の設定 -->
+<style is:inline set:html={`:root { --primary-hue: ${PRIMARY_HUE}; }`} />
 
 <!-- Google Analytics -->
 {ANALYTICS.ENABLED && ANALYTICS.GOOGLE_ANALYTICS_ID && (
