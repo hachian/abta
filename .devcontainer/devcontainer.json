@@ -24,7 +24,7 @@
 		"LC_ALL": "en_US.UTF-8"
 	},
 	
-	"postCreateCommand": "cd ${containerWorkspaceFolder} && npm install && curl -fsSL https://claude.ai/claude-code/install.sh | sh",
+	"postCreateCommand": "cd ${containerWorkspaceFolder} && npm install && npm install -g @anthropic-ai/claude-code",
 	"postStartCommand": "nohup bash -c 'npm run dev -- --host &'",
 	
 	"customizations": {
