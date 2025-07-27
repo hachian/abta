@@ -122,29 +122,12 @@
 		}
 	}
 	
-	// パフォーマンス最適化: 遅延初期化
-	document.addEventListener('DOMContentLoaded', () => {
-		// 画像クリックの監視をセットアップ（軽量）
-		const setupImageHandlers = () => {
-			const heroImage = document.querySelector('.hero-image img');
-			if (heroImage) {
-				heroImage.style.cursor = 'zoom-in';
-				heroImage.addEventListener('click', () => {
-					initializeLightbox().open(heroImage.src, heroImage.alt);
-				}, { once: false });
-			}
-			
-			const contentImages = document.querySelectorAll('.prose img');
-			contentImages.forEach(img => {
-				if (img.parentElement.tagName !== 'A') {
-					img.style.cursor = 'zoom-in';
-					img.addEventListener('click', () => {
-						initializeLightbox().open(img.src, img.alt);
-					}, { once: false });
-				}
-			});
-		};
-		
-		setupImageHandlers();
+	// 超軽量セットアップ: イベント委譲使用
+	addEventListener('click', e => {
+		const t = e.target;
+		if (t.tagName === 'IMG' && (t.closest('.hero-image') || (t.closest('.prose') && !t.closest('a')))) {
+			t.style.cursor = 'zoom-in';
+			initializeLightbox().open(t.src, t.alt);
+		}
 	});
 </script>

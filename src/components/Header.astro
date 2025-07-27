@@ -28,50 +28,38 @@ import { SITE_TITLE, FEATURES } from '../consts';
 </header>
 
 <script>
-	const menuToggle = document.querySelector('.menu-toggle') as HTMLButtonElement;
-	const navContent = document.querySelector('.nav-content') as HTMLDivElement;
-	
-	if (menuToggle && navContent) {
-		// 初期表示を設定
-		function handleResize() {
-			// リサイズ時はメニューを閉じる
-			navContent.classList.remove('is-open');
-			menuToggle.setAttribute('aria-expanded', 'false');
-			menuToggle.setAttribute('aria-label', 'メニューを開く');
-		}
+	// 遅延初期化でパフォーマンス改善
+	let headerInitialized = false;
+	function initializeHeader() {
+		if (headerInitialized) return;
+		headerInitialized = true;
 		
-		// リサイズを監視
-		let resizeTimer: number;
-		window.addEventListener('resize', () => {
-			clearTimeout(resizeTimer);
-			resizeTimer = setTimeout(handleResize, 100);
-		});
+		const m = document.querySelector('.menu-toggle'), n = document.querySelector('.nav-content');
+		if (!m || !n) return;
 		
-		menuToggle.addEventListener('click', () => {
-			const isOpen = navContent.classList.toggle('is-open');
-			menuToggle.setAttribute('aria-expanded', String(isOpen));
-			menuToggle.setAttribute('aria-label', isOpen ? 'メニューを閉じる' : 'メニューを開く');
-		});
+		const close = () => {
+			n.classList.remove('is-open');
+			m.setAttribute('aria-expanded', 'false');
+			m.setAttribute('aria-label', 'メニューを開く');
+		};
 		
-		// メニュー外をクリックしたら閉じる
-		document.addEventListener('click', (e) => {
-			if (!menuToggle.contains(e.target as Node) && !navContent.contains(e.target as Node)) {
-				navContent.classList.remove('is-open');
-				menuToggle.setAttribute('aria-expanded', 'false');
-				menuToggle.setAttribute('aria-label', 'メニューを開く');
-			}
-		});
+		// イベント最小化
+		m.onclick = () => {
+			const o = n.classList.toggle('is-open');
+			m.setAttribute('aria-expanded', String(o));
+			m.setAttribute('aria-label', o ? 'メニューを閉じる' : 'メニューを開く');
+		};
 		
-		// Escキーでメニューを閉じる
-		document.addEventListener('keydown', (e) => {
-			if (e.key === 'Escape' && navContent.classList.contains('is-open')) {
-				navContent.classList.remove('is-open');
-				menuToggle.setAttribute('aria-expanded', 'false');
-				menuToggle.setAttribute('aria-label', 'メニューを開く');
-				menuToggle.focus();
-			}
-		});
+		// パッシブリスナーとデバウンス
+		let t;
+		addEventListener('resize', () => { clearTimeout(t); t = setTimeout(close, 100); }, {passive: true});
+		addEventListener('click', e => !m.contains(e.target) && !n.contains(e.target) && close());
+		addEventListener('keydown', e => e.key === 'Escape' && n.classList.contains('is-open') && (close(), m.focus()));
 	}
+	
+	// モバイル時のみ初期化
+	if (innerWidth <= 768) initializeHeader();
+	else addEventListener('resize', () => innerWidth <= 768 && initializeHeader(), {once: true, passive: true});
 </script>
 
 <style>

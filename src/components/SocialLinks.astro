@@ -131,40 +131,23 @@ const hasOverflow = overflowPlatforms.length > 0;
 </div>
 
 <script>
-	document.addEventListener('DOMContentLoaded', () => {
-		const overflowToggles = document.querySelectorAll('.overflow-toggle');
-		
-		overflowToggles.forEach(toggle => {
-			const menu = toggle.nextElementSibling as HTMLElement;
-			
-			toggle.addEventListener('click', (e) => {
-				e.stopPropagation();
-				const isOpen = toggle.getAttribute('aria-expanded') === 'true';
-				toggle.setAttribute('aria-expanded', (!isOpen).toString());
-				menu.classList.toggle('is-open');
-			});
-		});
-		
-		// メニュー外クリックで閉じる
-		document.addEventListener('click', () => {
-			overflowToggles.forEach(toggle => {
-				const menu = toggle.nextElementSibling as HTMLElement;
+	// 軽量イベント委譲でソーシャルメニュー
+	addEventListener('click', e => {
+		const t = e.target.closest('.overflow-toggle');
+		if (t) {
+			e.stopPropagation();
+			const o = t.getAttribute('aria-expanded') === 'true', m = t.nextElementSibling;
+			t.setAttribute('aria-expanded', String(!o));
+			m?.classList.toggle('is-open', !o);
+		} else {
+			// 外部クリックで全メニュー閉じる
+			document.querySelectorAll('.overflow-toggle').forEach(toggle => {
 				toggle.setAttribute('aria-expanded', 'false');
-				menu.classList.remove('is-open');
+				toggle.nextElementSibling?.classList.remove('is-open');
 			});
-		});
-		
-		// ESCキーで閉じる
-		document.addEventListener('keydown', (e) => {
-			if (e.key === 'Escape') {
-				overflowToggles.forEach(toggle => {
-					const menu = toggle.nextElementSibling as HTMLElement;
-					toggle.setAttribute('aria-expanded', 'false');
-					menu.classList.remove('is-open');
-				});
-			}
-		});
+		}
 	});
+	addEventListener('keydown', e => e.key === 'Escape' && document.querySelectorAll('.overflow-toggle').forEach(t => (t.setAttribute('aria-expanded', 'false'), t.nextElementSibling?.classList.remove('is-open'))));
 </script>
 
 <style>
