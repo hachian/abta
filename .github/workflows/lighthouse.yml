@@ -31,6 +31,11 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
       - name: Install Lighthouse
         run: npm install -g lighthouse
 
@@ -49,7 +54,7 @@ jobs:
             --preset=desktop \
             --output=json \
             --output-path=./lighthouse_results/desktop-report.json \
-            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --chrome-flags="--no-sandbox --headless --disable-gpu --disable-dev-shm-usage --disable-extensions --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding" \
             --quiet
           
           # モバイルLighthouse実行
@@ -57,7 +62,7 @@ jobs:
           lighthouse https://abta.hachian.com/ \
             --output=json \
             --output-path=./lighthouse_results/mobile-report.json \
-            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --chrome-flags="--no-sandbox --headless --disable-gpu --disable-dev-shm-usage --disable-extensions --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding" \
             --quiet
           
           echo "Generating badges..."
