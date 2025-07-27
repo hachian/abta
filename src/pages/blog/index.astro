@@ -1,15 +1,21 @@
 ---
 import ContentLayout from '../../components/ContentLayout.astro';
 import BlogCardGrid from '../../components/BlogCardGrid.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
+import Pagination from '../../components/Pagination.astro';
+import { SITE_TITLE, POSTS_PER_PAGE } from '../../consts';
 import { getCollection } from 'astro:content';
 import { createCollectionPageSchema } from '../../utils/schema.ts';
 
-const posts = (await getCollection('blog', ({ data }) => {
+const allPosts = (await getCollection('blog', ({ data }) => {
 	return import.meta.env.PROD ? data.draft !== true : true;
 })).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+
+// 1ページ目のデータを作成
+const posts = allPosts.slice(0, POSTS_PER_PAGE);
+const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+const currentPage = 1;
 
 // CollectionPage構造化データ
 const collectionPageSchema = createCollectionPageSchema(
@@ -18,7 +24,7 @@ const collectionPageSchema = createCollectionPageSchema(
 	new URL(Astro.url.pathname, Astro.site).href,
 	Astro.site?.href || '',
 	"ABTA",
-	posts.length
+	allPosts.length
 );
 
 // パンくずリスト用データ
@@ -41,4 +47,13 @@ const pageDescription = 'ABTAのブログ記事一覧です。最新の記事か
 		<h1>ブログ記事一覧</h1>
 	</section>
 	<BlogCardGrid posts={posts} />
+	{totalPages > 1 && (
+		<Pagination 
+			currentPage={currentPage}
+			totalPages={totalPages}
+			baseUrl="/blog"
+			prevUrl={null}
+			nextUrl={totalPages > 1 ? "/blog/2/" : null}
+		/>
+	)}
 </ContentLayout>

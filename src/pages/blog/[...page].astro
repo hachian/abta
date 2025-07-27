@@ -1,0 +1,104 @@
+---
+import ContentLayout from '../../components/ContentLayout.astro';
+import BlogCardGrid from '../../components/BlogCardGrid.astro';
+import Pagination from '../../components/Pagination.astro';
+import { SITE_TITLE, POSTS_PER_PAGE } from '../../consts';
+import { getCollection } from 'astro:content';
+import type { PaginateFunction } from 'astro';
+import { createCollectionPageSchema } from '../../utils/schema.ts';
+
+export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
+	const posts = (await getCollection('blog', ({ data }) => {
+		return import.meta.env.PROD ? data.draft !== true : true;
+	})).sort(
+		(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+	);
+
+	// 2ページ目以降のみを生成（1ページ目は /blog/index.astro が担当）
+	const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
+	const paths = [];
+	
+	for (let i = 2; i <= totalPages; i++) {
+		const start = (i - 1) * POSTS_PER_PAGE;
+		const end = start + POSTS_PER_PAGE;
+		const pagePosts = posts.slice(start, end);
+		
+		paths.push({
+			params: { page: i.toString() },
+			props: {
+				page: {
+					data: pagePosts,
+					start: start,
+					end: Math.min(end - 1, posts.length - 1),
+					total: posts.length,
+					currentPage: i,
+					lastPage: totalPages,
+					url: {
+						prev: i === 2 ? '/blog/' : `/blog/${i - 1}/`,
+						next: i < totalPages ? `/blog/${i + 1}/` : null
+					}
+				}
+			}
+		});
+	}
+	
+	return paths;
+}
+
+const { page } = Astro.props;
+const posts = page.data;
+
+// CollectionPage構造化データ
+const collectionPageSchema = createCollectionPageSchema(
+	"ブログ記事一覧",
+	"ABTAのブログ記事一覧ページです。すべての記事を新着順に表示しています。",
+	new URL(Astro.url.pathname, Astro.site).href,
+	Astro.site?.href || '',
+	"ABTA",
+	page.total
+);
+
+// パンくずリスト用データ
+const breadcrumbItems = [
+	{ name: 'ホーム', url: '/' },
+	{ name: 'ブログ' }
+];
+
+const pageTitle = page.currentPage === 1 ? 'ブログ記事一覧' : `ブログ記事一覧 - ${page.currentPage}ページ目`;
+const pageDescription = page.currentPage === 1 
+	? 'ABTAのブログ記事一覧です。最新の記事から過去の記事まで、すべての記事をご覧いただけます。'
+	: `ABTAのブログ記事一覧の${page.currentPage}ページ目です。${page.start + 1}件目から${page.end + 1}件目の記事を表示しています。`;
+---
+
+<ContentLayout
+	title={pageTitle}
+	description={pageDescription}
+	breadcrumbItems={breadcrumbItems}
+	schema={collectionPageSchema}
+>
+	<section class="page-header">
+		<h1>ブログ記事一覧</h1>
+		{page.currentPage > 1 && (
+			<p class="page-info">
+				{page.start + 1}件目〜{page.end + 1}件目を表示（全{page.total}件中）
+			</p>
+		)}
+	</section>
+	<BlogCardGrid posts={posts} />
+	<Pagination 
+		currentPage={page.currentPage}
+		totalPages={page.lastPage}
+		baseUrl="/blog"
+		prevUrl={page.url.prev}
+		nextUrl={page.url.next}
+	/>
+</ContentLayout>
+
+<style>
+	.page-info {
+		margin-top: 0.5rem;
+		color: var(--primary-foreground);
+		opacity: 0.8;
+		font-size: 0.9rem;
+	}
+</style>

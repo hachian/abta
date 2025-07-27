@@ -1,0 +1,179 @@
+---
+import BaseHead from '../../../../components/BaseHead.astro';
+import Header from '../../../../components/Header.astro';
+import Footer from '../../../../components/Footer.astro';
+import BlogCardGrid from '../../../../components/BlogCardGrid.astro';
+import Pagination from '../../../../components/Pagination.astro';
+import Breadcrumb from '../../../../components/Breadcrumb.astro';
+import { SITE_TITLE, POSTS_PER_PAGE } from '../../../../consts';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import type { PaginateFunction } from 'astro';
+
+export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
+  const posts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+  });
+  
+  // Extract all unique years and group posts
+  const yearGroups = new Map<string, CollectionEntry<'blog'>[]>();
+  
+  posts.forEach(post => {
+    const date = new Date(post.data.pubDate);
+    const year = date.getFullYear().toString();
+    
+    if (!yearGroups.has(year)) {
+      yearGroups.set(year, []);
+    }
+    yearGroups.get(year)!.push(post);
+  });
+  
+  // Generate paginated paths for each year
+  const paths = [];
+  
+  for (const [year, yearPosts] of yearGroups) {
+    const sortedPosts = yearPosts.sort(
+      (a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+    );
+    
+    const paginatedPaths = paginate(sortedPosts, {
+      params: { year },
+      pageSize: POSTS_PER_PAGE,
+    });
+    
+    paths.push(...paginatedPaths);
+  }
+  
+  return paths;
+}
+
+const { year } = Astro.params;
+const { page } = Astro.props;
+const posts = page.data;
+
+// CollectionPage構造化データ
+const collectionPageSchema = {
+	"@context": "https://schema.org",
+	"@type": "CollectionPage",
+	"name": `${year}年の記事一覧`,
+	"description": `${year}年に公開された記事の一覧ページです。`,
+	"url": new URL(Astro.url.pathname, Astro.site).href,
+	"inLanguage": "ja",
+	"isPartOf": {
+		"@type": "WebSite",
+		"name": "ABTA",
+		"url": Astro.site?.href
+	},
+	"numberOfItems": page.total
+};
+
+// パンくずリスト用データ
+const breadcrumbItems = [
+	{ name: 'ホーム', url: '/' },
+	{ name: 'アーカイブ', url: '/archive/monthly/' },
+	{ name: '年別', url: '/archive/yearly/' },
+	{ name: `${year}年` }
+];
+
+const pageTitle = page.currentPage === 1 
+	? `${year}年の記事 - ${SITE_TITLE}`
+	: `${year}年の記事 - ${page.currentPage}ページ目 - ${SITE_TITLE}`;
+
+const pageDescription = page.currentPage === 1
+	? `${year}年に公開された記事の一覧です。${page.total}件の記事があります。`
+	: `${year}年に公開された記事の${page.currentPage}ページ目です。${page.start + 1}件目から${page.end + 1}件目の記事を表示しています（全${page.total}件中）。`;
+---
+
+<!doctype html>
+<html lang="ja">
+	<head>
+		<BaseHead title={pageTitle} description={pageDescription} />
+		<script type="application/ld+json" set:html={JSON.stringify(collectionPageSchema)}></script>
+		<style>
+			body {
+				background: var(--primary-background);
+				min-height: 100vh;
+			}
+			
+			main {
+				width: 100%;
+				padding: 2rem 0;
+			}
+			
+			.container {
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 0 1rem;
+			}
+			
+			.page-header {
+				text-align: center;
+				margin-bottom: 3rem;
+			}
+			
+			h1 {
+				color: var(--primary-foreground);
+				margin: 0.5rem 0;
+				font-size: 2rem;
+			}
+			
+			.page-info {
+				color: var(--primary-foreground);
+				font-size: 1rem;
+				margin-top: 0.5rem;
+				opacity: 0.8;
+			}
+			
+			.back-link {
+				color: var(--primary);
+				text-decoration: none;
+				margin-bottom: 2rem;
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				font-size: 0.9rem;
+				transition: all 0.2s ease;
+			}
+			
+			.back-link:hover {
+				color: var(--primary-dark);
+				transform: translateX(-4px);
+			}
+			
+			@media (max-width: 768px) {
+				h1 {
+					font-size: 1.5rem;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<div class="container">
+				<Breadcrumb items={breadcrumbItems} />
+				<a href="/archive/yearly/" class="back-link">← 年別一覧</a>
+				<div class="page-header">
+					<h1>{year}年の記事</h1>
+					{page.currentPage === 1 ? (
+						<p class="page-info">{page.total}件の記事</p>
+					) : (
+						<p class="page-info">
+							{page.start + 1}件目〜{page.end + 1}件目を表示（全{page.total}件中）
+						</p>
+					)}
+				</div>
+				<section>
+					<BlogCardGrid posts={posts} />
+				</section>
+				<Pagination 
+					currentPage={page.currentPage}
+					totalPages={page.lastPage}
+					baseUrl={`/archive/yearly/${year}`}
+					prevUrl={page.url.prev}
+					nextUrl={page.url.next}
+				/>
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>

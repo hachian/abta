@@ -1,0 +1,166 @@
+---
+import BaseHead from '../../../../../components/BaseHead.astro';
+import Header from '../../../../../components/Header.astro';
+import Footer from '../../../../../components/Footer.astro';
+import BlogCardGrid from '../../../../../components/BlogCardGrid.astro';
+import Pagination from '../../../../../components/Pagination.astro';
+import Breadcrumb from '../../../../../components/Breadcrumb.astro';
+import { SITE_TITLE, POSTS_PER_PAGE } from '../../../../../consts';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+  });
+  
+  // Extract all unique year/month combinations
+  const yearMonths = [...new Set(posts.map(post => {
+    const date = new Date(post.data.pubDate);
+    const year = date.getFullYear().toString();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  }))];
+  
+  return yearMonths.map(yearMonth => {
+    const [year, month] = yearMonth.split('-');
+    return {
+      params: { year, month }
+    };
+  });
+}
+
+const { year, month } = Astro.params;
+
+const allPosts = (await getCollection('blog', ({ data }) => {
+	return import.meta.env.PROD ? data.draft !== true : true;
+})).filter(post => {
+  const date = new Date(post.data.pubDate);
+  const postYear = date.getFullYear().toString();
+  const postMonth = String(date.getMonth() + 1).padStart(2, '0');
+  return postYear === year && postMonth === month;
+}).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// 1ページ目のデータを作成
+const posts = allPosts.slice(0, POSTS_PER_PAGE);
+const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+const currentPage = 1;
+const yearMonth = `${year}/${month}`;
+
+// CollectionPage構造化データ
+const collectionPageSchema = {
+	"@context": "https://schema.org",
+	"@type": "CollectionPage",
+	"name": `${yearMonth}の記事一覧`,
+	"description": `${yearMonth}に公開された記事の一覧ページです。`,
+	"url": new URL(Astro.url.pathname, Astro.site).href,
+	"inLanguage": "ja",
+	"isPartOf": {
+		"@type": "WebSite",
+		"name": "ABTA",
+		"url": Astro.site?.href
+	},
+	"numberOfItems": allPosts.length
+};
+
+// パンくずリスト用データ
+const breadcrumbItems = [
+	{ name: 'ホーム', url: '/' },
+	{ name: 'アーカイブ', url: '/archive/monthly/' },
+	{ name: '月別', url: '/archive/monthly/' },
+	{ name: yearMonth }
+];
+
+const pageTitle = `${yearMonth}の記事 - ${SITE_TITLE}`;
+const pageDescription = `${yearMonth}に公開された記事の一覧です。${allPosts.length}件の記事があります。`;
+---
+
+<!doctype html>
+<html lang="ja">
+	<head>
+		<BaseHead title={pageTitle} description={pageDescription} />
+		<script type="application/ld+json" set:html={JSON.stringify(collectionPageSchema)}></script>
+		<style>
+			body {
+				background: var(--primary-background);
+				min-height: 100vh;
+			}
+			
+			main {
+				width: 100%;
+				padding: 2rem 0;
+			}
+			
+			.container {
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 0 1rem;
+			}
+			
+			.page-header {
+				text-align: center;
+				margin-bottom: 3rem;
+			}
+			
+			h1 {
+				color: var(--primary-foreground);
+				margin: 0.5rem 0;
+				font-size: 2rem;
+			}
+			
+			.page-info {
+				color: var(--primary-foreground);
+				font-size: 1rem;
+				margin-top: 0.5rem;
+				opacity: 0.8;
+			}
+			
+			.back-link {
+				color: var(--primary);
+				text-decoration: none;
+				margin-bottom: 2rem;
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				font-size: 0.9rem;
+				transition: all 0.2s ease;
+			}
+			
+			.back-link:hover {
+				color: var(--primary-dark);
+				transform: translateX(-4px);
+			}
+			
+			@media (max-width: 768px) {
+				h1 {
+					font-size: 1.5rem;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<div class="container">
+				<Breadcrumb items={breadcrumbItems} />
+				<a href="/archive/monthly/" class="back-link">← 月別一覧</a>
+				<div class="page-header">
+					<h1>{yearMonth}の記事</h1>
+					<p class="page-info">{allPosts.length}件の記事</p>
+				</div>
+				<section>
+					<BlogCardGrid posts={posts} />
+				</section>
+				{totalPages > 1 && (
+					<Pagination 
+						currentPage={currentPage}
+						totalPages={totalPages}
+						baseUrl={`/archive/monthly/${year}/${month}`}
+						prevUrl={null}
+						nextUrl={totalPages > 1 ? `/archive/monthly/${year}/${month}/2/` : null}
+					/>
+				)}
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>

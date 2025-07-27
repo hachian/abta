@@ -3,44 +3,47 @@ import BaseHead from '../../../../components/BaseHead.astro';
 import Header from '../../../../components/Header.astro';
 import Footer from '../../../../components/Footer.astro';
 import BlogCardGrid from '../../../../components/BlogCardGrid.astro';
+import Pagination from '../../../../components/Pagination.astro';
 import Breadcrumb from '../../../../components/Breadcrumb.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../../../../consts';
+import { SITE_TITLE, POSTS_PER_PAGE } from '../../../../consts';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
+  const posts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+  });
   
-  // Extract all unique year/month combinations
-  const yearMonths = [...new Set(posts.map(post => {
+  // Extract all unique years
+  const years = [...new Set(posts.map(post => {
     const date = new Date(post.data.pubDate);
-    const year = date.getFullYear().toString();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    return { year, month };
+    return date.getFullYear().toString();
   }))];
   
-  return yearMonths.map(({ year, month }) => ({
-    params: { year, month },
-    props: { 
-      posts: posts.filter(post => {
-        const date = new Date(post.data.pubDate);
-        const postYear = date.getFullYear().toString();
-        const postMonth = String(date.getMonth() + 1).padStart(2, '0');
-        return postYear === year && postMonth === month;
-      }).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-    }
+  return years.map(year => ({
+    params: { year }
   }));
 }
 
-const { year, month } = Astro.params;
-const { posts } = Astro.props;
-const yearMonth = `${year}/${month}`;
+const { year } = Astro.params;
+
+const allPosts = (await getCollection('blog', ({ data }) => {
+	return import.meta.env.PROD ? data.draft !== true : true;
+})).filter(post => {
+  const date = new Date(post.data.pubDate);
+  return date.getFullYear().toString() === year;
+}).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// 1ページ目のデータを作成
+const posts = allPosts.slice(0, POSTS_PER_PAGE);
+const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+const currentPage = 1;
 
 // CollectionPage構造化データ
 const collectionPageSchema = {
 	"@context": "https://schema.org",
 	"@type": "CollectionPage",
-	"name": `${yearMonth}の記事一覧`,
-	"description": `${yearMonth}に公開された記事の一覧ページです。`,
+	"name": `${year}年の記事一覧`,
+	"description": `${year}年に公開された記事の一覧ページです。`,
 	"url": new URL(Astro.url.pathname, Astro.site).href,
 	"inLanguage": "ja",
 	"isPartOf": {
@@ -48,19 +51,19 @@ const collectionPageSchema = {
 		"name": "ABTA",
 		"url": Astro.site?.href
 	},
-	"numberOfItems": posts.length
+	"numberOfItems": allPosts.length
 };
 
 // パンくずリスト用データ
 const breadcrumbItems = [
 	{ name: 'ホーム', url: '/' },
 	{ name: 'アーカイブ', url: '/archive/monthly/' },
-	{ name: '月別', url: '/archive/monthly/' },
-	{ name: yearMonth }
+	{ name: '年別', url: '/archive/yearly/' },
+	{ name: `${year}年` }
 ];
 
-const pageTitle = `${yearMonth}の記事 - ${SITE_TITLE}`;
-const pageDescription = `${yearMonth}に公開された記事の一覧です。${posts.length}件の記事があります。`;
+const pageTitle = `${year}年の記事 - ${SITE_TITLE}`;
+const pageDescription = `${year}年に公開された記事の一覧です。${allPosts.length}件の記事があります。`;
 ---
 
 <!doctype html>
@@ -90,17 +93,17 @@ const pageDescription = `${yearMonth}に公開された記事の一覧です。$
 				margin-bottom: 3rem;
 			}
 			
-			
 			h1 {
 				color: var(--primary-foreground);
 				margin: 0.5rem 0;
 				font-size: 2rem;
 			}
 			
-			.post-count {
+			.page-info {
 				color: var(--primary-foreground);
 				font-size: 1rem;
 				margin-top: 0.5rem;
+				opacity: 0.8;
 			}
 			
 			.back-link {
@@ -131,14 +134,23 @@ const pageDescription = `${yearMonth}に公開された記事の一覧です。$
 		<main>
 			<div class="container">
 				<Breadcrumb items={breadcrumbItems} />
-				<a href="/archive/monthly/" class="back-link">← 月別一覧</a>
+				<a href="/archive/yearly/" class="back-link">← 年別一覧</a>
 				<div class="page-header">
-					<h1>{yearMonth}の記事</h1>
-					<p class="post-count">{posts.length}件の記事</p>
+					<h1>{year}年の記事</h1>
+					<p class="page-info">{allPosts.length}件の記事</p>
 				</div>
 				<section>
 					<BlogCardGrid posts={posts} />
 				</section>
+				{totalPages > 1 && (
+					<Pagination 
+						currentPage={currentPage}
+						totalPages={totalPages}
+						baseUrl={`/archive/yearly/${year}`}
+						prevUrl={null}
+						nextUrl={totalPages > 1 ? `/archive/yearly/${year}/2/` : null}
+					/>
+				)}
 			</div>
 		</main>
 		<Footer />

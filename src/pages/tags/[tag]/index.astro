@@ -1,27 +1,35 @@
 ---
-import BaseHead from '../../components/BaseHead.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import BlogCardGrid from '../../components/BlogCardGrid.astro';
-import Breadcrumb from '../../components/Breadcrumb.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
+import BaseHead from '../../../components/BaseHead.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import BlogCardGrid from '../../../components/BlogCardGrid.astro';
+import Pagination from '../../../components/Pagination.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import { SITE_TITLE, POSTS_PER_PAGE } from '../../../consts';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
+  const posts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+  });
   const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
   
   return allTags.map(tag => ({
-    params: { tag },
-    props: { 
-      posts: posts.filter(post => post.data.tags?.includes(tag))
-        .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-    }
+    params: { tag }
   }));
 }
 
 const { tag } = Astro.params;
-const { posts } = Astro.props;
+
+const allPosts = (await getCollection('blog', ({ data }) => {
+	return import.meta.env.PROD ? data.draft !== true : true;
+})).filter(post => post.data.tags?.includes(tag))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// 1ページ目のデータを作成
+const posts = allPosts.slice(0, POSTS_PER_PAGE);
+const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+const currentPage = 1;
 
 // CollectionPage構造化データ
 const collectionPageSchema = {
@@ -36,7 +44,7 @@ const collectionPageSchema = {
 		"name": "ABTA",
 		"url": Astro.site?.href
 	},
-	"numberOfItems": posts.length
+	"numberOfItems": allPosts.length
 };
 
 // パンくずリスト用データ
@@ -47,7 +55,7 @@ const breadcrumbItems = [
 ];
 
 const pageTitle = `「${tag}」タグの記事 - ${SITE_TITLE}`;
-const pageDescription = `「${tag}」タグが付けられた記事の一覧です。${posts.length}件の記事があります。`;
+const pageDescription = `「${tag}」タグが付けられた記事の一覧です。${allPosts.length}件の記事があります。`;
 ---
 
 <!doctype html>
@@ -94,12 +102,12 @@ const pageDescription = `「${tag}」タグが付けられた記事の一覧で�
 				font-size: 2rem;
 			}
 			
-			.post-count {
+			.page-info {
 				color: var(--primary-foreground);
 				font-size: 1rem;
 				margin-top: 0.5rem;
+				opacity: 0.8;
 			}
-			
 			
 			.back-link {
 				color: var(--primary);
@@ -133,11 +141,20 @@ const pageDescription = `「${tag}」タグが付けられた記事の一覧で�
 				<div class="page-header">
 					<div class="tag-badge">{tag}</div>
 					<h1>「{tag}」タグの記事</h1>
-					<p class="post-count">{posts.length} 件の記事</p>
+					<p class="page-info">{allPosts.length} 件の記事</p>
 				</div>
 				<section>
 					<BlogCardGrid posts={posts} />
 				</section>
+				{totalPages > 1 && (
+					<Pagination 
+						currentPage={currentPage}
+						totalPages={totalPages}
+						baseUrl={`/tags/${encodeURIComponent(tag)}`}
+						prevUrl={null}
+						nextUrl={totalPages > 1 ? `/tags/${encodeURIComponent(tag)}/2/` : null}
+					/>
+				)}
 			</div>
 		</main>
 		<Footer />

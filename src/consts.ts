@@ -43,3 +43,6 @@ export const BLOG_IMAGE_HEIGHT = 360;
 export const GRID_MIN_WIDTH = 350; // px
 export const CARD_MAX_WIDTH_DESKTOP = 400; // px
 export const CARD_MAX_WIDTH_TABLET = 500; // px
+
+// ページネーション設定
+export const POSTS_PER_PAGE = 12;
