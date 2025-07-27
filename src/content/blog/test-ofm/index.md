@@ -3,6 +3,7 @@ title: 'test-ofm'
 description: 'Lorem ipsum dolor sit amet'
 pubDate: '2022-07-22'
 heroImage: ''
+draft: true
 ---
 
 - [[second-post]]
