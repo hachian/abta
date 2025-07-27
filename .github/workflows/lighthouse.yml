@@ -1,10 +1,6 @@
 name: Lighthouse Badge
 
 on:
-  # プッシュ時に実行（mainブランチのみ）
-  push:
-    branches: [ main ]
-  
   # 週次実行（日曜日の深夜2時）
   schedule:
     - cron: '0 2 * * 0'
@@ -14,25 +10,64 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
-  lighthouse-badger:
+  lighthouse-badge:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Generate Lighthouse Badge
-        uses: MyActionWay/lighthouse-badger-action@v2.2
         with:
-          urls: https://abta.hachian.com/
-          badges_args: -b pagespeed -o lighthouse_results -r
-          audit_type: both
-          mobile_lighthouse_params: '--throttling.cpuSlowdownMultiplier=2'
-          desktop_lighthouse_params: '--preset=desktop --throttling.cpuSlowdownMultiplier=1'
-          user_name: hachian
-          user_email: jamjam8an@gmail.com
-          commit_message: 'docs: update lighthouse badges [skip ci]'
-          max_push_attempts: 5
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Lighthouse
+        run: npm install -g @lhci/cli lighthouse
+
+      - name: Create lighthouse results directory
+        run: mkdir -p lighthouse_results
+
+      - name: Run Lighthouse for Desktop
+        run: |
+          lighthouse https://abta.hachian.com/ \
+            --preset=desktop \
+            --output=json \
+            --output-path=./lighthouse_results/desktop-report.json \
+            --chrome-flags="--headless --no-sandbox"
+
+      - name: Run Lighthouse for Mobile
+        run: |
+          lighthouse https://abta.hachian.com/ \
+            --output=json \
+            --output-path=./lighthouse_results/mobile-report.json \
+            --chrome-flags="--headless --no-sandbox"
+
+      - name: Generate Badge
+        run: |
+          # デスクトップスコア取得
+          DESKTOP_PERF=$(cat lighthouse_results/desktop-report.json | jq '.categories.performance.score * 100')
+          DESKTOP_ACCESS=$(cat lighthouse_results/desktop-report.json | jq '.categories.accessibility.score * 100')
+          DESKTOP_BP=$(cat lighthouse_results/desktop-report.json | jq '.categories["best-practices"].score * 100')
+          DESKTOP_SEO=$(cat lighthouse_results/desktop-report.json | jq '.categories.seo.score * 100')
+          
+          # モバイルスコア取得
+          MOBILE_PERF=$(cat lighthouse_results/mobile-report.json | jq '.categories.performance.score * 100')
+          MOBILE_ACCESS=$(cat lighthouse_results/mobile-report.json | jq '.categories.accessibility.score * 100')
+          MOBILE_BP=$(cat lighthouse_results/mobile-report.json | jq '.categories["best-practices"].score * 100')
+          MOBILE_SEO=$(cat lighthouse_results/mobile-report.json | jq '.categories.seo.score * 100')
+          
+          # バッジSVG生成
+          curl -s "https://img.shields.io/badge/Lighthouse%20Desktop-${DESKTOP_PERF}%25%20${DESKTOP_ACCESS}%25%20${DESKTOP_BP}%25%20${DESKTOP_SEO}%25-brightgreen" > lighthouse_results/abta_hachian_com_desktop.svg
+          curl -s "https://img.shields.io/badge/Lighthouse%20Mobile-${MOBILE_PERF}%25%20${MOBILE_ACCESS}%25%20${MOBILE_BP}%25%20${MOBILE_SEO}%25-brightgreen" > lighthouse_results/abta_hachian_com_mobile.svg
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "jamjam8an@gmail.com"
+          git config --local user.name "hachian"
+          git add lighthouse_results/
+          git diff --staged --quiet || git commit -m "docs: update lighthouse badges [skip ci]"
+          git push
