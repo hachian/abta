@@ -1,6 +1,12 @@
 name: Lighthouse Badge
 
 on:
+  # mainブランチへのプッシュで実行（即座にバッジを更新）
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'lighthouse_results/**'
+  
   # 週次実行（日曜日の深夜2時）
   schedule:
     - cron: '0 2 * * 0'
