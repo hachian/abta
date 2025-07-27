@@ -22,7 +22,16 @@
 </div>
 
 <script>
-	// ライトボックスの初期化と制御
+	// ライトボックスの遅延初期化（パフォーマンス最適化）
+	let lightboxInstance = null;
+	
+	function initializeLightbox() {
+		if (lightboxInstance) return lightboxInstance;
+		
+		lightboxInstance = new Lightbox();
+		return lightboxInstance;
+	}
+	
 	class Lightbox {
 		constructor() {
 			this.lightbox = document.getElementById('lightbox');
@@ -37,9 +46,6 @@
 		}
 		
 		init() {
-			// 画像クリックイベントの設定
-			this.setupImageClickHandlers();
-			
 			// 閉じるイベントの設定
 			this.closeButton.addEventListener('click', () => this.close());
 			this.overlay.addEventListener('click', () => this.close());
@@ -55,29 +61,6 @@
 			this.image.addEventListener('click', (e) => {
 				e.stopPropagation();
 				this.close();
-			});
-		}
-		
-		setupImageClickHandlers() {
-			// ヒーロー画像
-			const heroImage = document.querySelector('.hero-image img');
-			if (heroImage) {
-				heroImage.style.cursor = 'zoom-in';
-				heroImage.addEventListener('click', () => {
-					this.open(heroImage.src, heroImage.alt);
-				});
-			}
-			
-			// ブログ記事内の画像
-			const contentImages = document.querySelectorAll('.prose img');
-			contentImages.forEach(img => {
-				// 親要素がリンクでない場合のみクリック可能にする
-				if (img.parentElement.tagName !== 'A') {
-					img.style.cursor = 'zoom-in';
-					img.addEventListener('click', () => {
-						this.open(img.src, img.alt);
-					});
-				}
 			});
 		}
 		
@@ -139,8 +122,29 @@
 		}
 	}
 	
-	// DOMContentLoadedでライトボックスを初期化
+	// パフォーマンス最適化: 遅延初期化
 	document.addEventListener('DOMContentLoaded', () => {
-		new Lightbox();
+		// 画像クリックの監視をセットアップ（軽量）
+		const setupImageHandlers = () => {
+			const heroImage = document.querySelector('.hero-image img');
+			if (heroImage) {
+				heroImage.style.cursor = 'zoom-in';
+				heroImage.addEventListener('click', () => {
+					initializeLightbox().open(heroImage.src, heroImage.alt);
+				}, { once: false });
+			}
+			
+			const contentImages = document.querySelectorAll('.prose img');
+			contentImages.forEach(img => {
+				if (img.parentElement.tagName !== 'A') {
+					img.style.cursor = 'zoom-in';
+					img.addEventListener('click', () => {
+						initializeLightbox().open(img.src, img.alt);
+					}, { once: false });
+				}
+			});
+		};
+		
+		setupImageHandlers();
 	});
 </script>

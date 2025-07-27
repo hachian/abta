@@ -72,18 +72,13 @@ const organizationSchema = {
 />
 <meta name="generator" content={Astro.generator} />
 
-<!-- DNS prefetch for performance -->
-<link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-<link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-
-<!-- Critical Font preloads - Noto Sans JP priority -->
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-<!-- Local fonts - secondary priority -->
+<!-- Critical Resource Preloads - LCP Optimization -->
+<link rel="preload" href="/favicon.svg" as="image" type="image/svg+xml" />
 <link rel="preload" href="/fonts/atkinson-regular.woff" as="font" type="font/woff" crossorigin />
 
-<!-- Google Fonts - optimized loading -->
+<!-- Font optimization - Noto Sans JP with optimized loading -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet" /></noscript>
 
@@ -129,15 +124,19 @@ const organizationSchema = {
 <!-- CSS変数の設定 -->
 <style is:inline set:html={`:root { --primary-hue: ${PRIMARY_HUE}; }`} />
 
-<!-- Google Analytics -->
+<!-- Google Analytics - 最適化済み -->
 {ANALYTICS.ENABLED && ANALYTICS.GOOGLE_ANALYTICS_ID && (
 	<>
+		<link rel="preconnect" href="https://www.googletagmanager.com" />
 		<script async src={`https://www.googletagmanager.com/gtag/js?id=${ANALYTICS.GOOGLE_ANALYTICS_ID}`}></script>
 		<script is:inline set:html={`
 			window.dataLayer = window.dataLayer || [];
 			function gtag(){dataLayer.push(arguments);}
 			gtag('js', new Date());
-			gtag('config', '${ANALYTICS.GOOGLE_ANALYTICS_ID}');
+			gtag('config', '${ANALYTICS.GOOGLE_ANALYTICS_ID}', {
+				page_title: document.title,
+				page_location: window.location.href
+			});
 		`} />
 	</>
 )}

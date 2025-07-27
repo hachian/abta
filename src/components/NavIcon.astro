@@ -1,0 +1,19 @@
+---
+interface Props {
+	type: 'blog' | 'tags' | 'archive';
+	class?: string;
+}
+
+const { type, class: className = "nav-card-icon" } = Astro.props;
+
+// CSS Icon classes for performance optimization
+const iconClasses = {
+	blog: 'icon-blog',
+	tags: 'icon-tags', 
+	archive: 'icon-archive'
+};
+
+const iconClass = iconClasses[type];
+---
+
+<i class={`icon ${iconClass} ${className}`} aria-hidden="true"></i>
