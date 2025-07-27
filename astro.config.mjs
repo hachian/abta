@@ -7,4 +7,41 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
 	site: 'https://abta.hachian.com',
 	integrations: [mdx(), sitemap()],
+	build: {
+		inlineStylesheets: 'auto',
+		assets: '_astro',
+		assetsPrefix: '/_astro'
+	},
+	compressHTML: true,
+	prefetch: {
+		prefetchAll: true,
+		defaultStrategy: 'viewport'
+	},
+	vite: {
+		build: {
+			cssMinify: true,
+			minify: 'esbuild',
+			rollupOptions: {
+				output: {
+					manualChunks: {
+						'astro': ['astro'],
+					},
+					assetFileNames: (assetInfo) => {
+						const info = assetInfo.name.split('.');
+						const ext = info[info.length - 1];
+						if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+							return `images/[name].[hash][extname]`;
+						}
+						if (/woff2?|ttf|eot/i.test(ext)) {
+							return `fonts/[name].[hash][extname]`;
+						}
+						return `[name].[hash][extname]`;
+					}
+				}
+			}
+		},
+		css: {
+			transformer: 'postcss'
+		}
+	}
 });
