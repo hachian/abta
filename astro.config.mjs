@@ -8,7 +8,7 @@ export default defineConfig({
 	site: 'https://abta.hachian.com',
 	integrations: [mdx(), sitemap()],
 	build: {
-		inlineStylesheets: 'auto',
+		inlineStylesheets: 'always', // すべてのCSSをインライン化してブロッキング完全解消
 		assets: '_astro'
 	},
 	compressHTML: true,

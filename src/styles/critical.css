@@ -1,0 +1,91 @@
+/* ABTA Critical CSS - Minimal Above the Fold Only */
+
+/* CSS Variables - 必須 */
+:root {
+	--primary: oklch(45% 0.25 var(--primary-hue));
+	--primary-foreground: oklch(12% 0.02 var(--primary-hue));
+	--primary-background: oklch(97% 0.01 var(--primary-hue));
+}
+
+/* Box Sizing - 必須 */
+* { box-sizing: border-box; }
+
+/* Base Layout - 初期描画必須 */
+html, body { overflow-x: hidden; }
+
+body {
+	font-family: 'Noto Sans JP', 'Atkinson', sans-serif;
+	margin: 0;
+	background: var(--primary-background);
+	color: var(--primary-foreground);
+	font-size: 16px;
+	line-height: 1.8;
+	min-height: 100vh;
+}
+
+/* Hero Section - Above the fold 専用 */
+.hero-section {
+	text-align: center;
+	margin-bottom: 4rem;
+}
+
+.hero-section h1 {
+	font-size: 2.5rem;
+	color: var(--primary);
+	margin: 0 0 1rem 0;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.hero-section .subtitle {
+	font-size: 1.2rem;
+	color: var(--primary-foreground);
+	margin-bottom: 2rem;
+}
+
+.hero-section .subtitle em {
+	color: var(--primary);
+	font-style: normal;
+	font-weight: 600;
+}
+
+/* Layout - 最小限 */
+.content-wrapper {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 1rem;
+}
+
+main.home-page {
+	padding: 2rem 0;
+	overflow-x: hidden;
+}
+
+/* Description - Above the fold */
+.description {
+	max-width: 800px;
+	margin: 0 auto 3rem;
+	line-height: 1.8;
+	color: var(--primary-foreground);
+}
+
+/* Links - 最小限 */
+a { color: var(--primary); }
+
+/* Essential Utilities */
+.text-center { text-align: center; }
+.hidden { display: none !important; }
+
+/* Mobile - Critical のみ */
+@media (max-width: 767px) {
+	.hero-section h1 { font-size: 2rem; }
+	.hero-section .subtitle { font-size: 1rem; }
+	.hero-section { margin-bottom: 2rem; }
+	.description { margin-bottom: 2rem; padding: 0 0.5rem; }
+}
+
+@media (max-width: 480px) {
+	.content-wrapper { padding: 0 0.5rem; }
+	.hero-section h1 { font-size: 1.75rem; }
+	.hero-section .subtitle { font-size: 0.9rem; }
+}
