@@ -26,48 +26,88 @@ jobs:
           node-version: '18'
 
       - name: Install Lighthouse
-        run: npm install -g @lhci/cli lighthouse
+        run: npm install -g lighthouse
 
       - name: Create lighthouse results directory
         run: mkdir -p lighthouse_results
 
-      - name: Run Lighthouse for Desktop
+      - name: Run Lighthouse and Generate Badges
         run: |
+          # デスクトップLighthouse実行
           lighthouse https://abta.hachian.com/ \
             --preset=desktop \
             --output=json \
             --output-path=./lighthouse_results/desktop-report.json \
-            --chrome-flags="--headless --no-sandbox"
-
-      - name: Run Lighthouse for Mobile
-        run: |
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage"
+          
+          # モバイルLighthouse実行
           lighthouse https://abta.hachian.com/ \
             --output=json \
             --output-path=./lighthouse_results/mobile-report.json \
-            --chrome-flags="--headless --no-sandbox"
-
-      - name: Generate Badge
-        run: |
-          # デスクトップスコア取得
-          DESKTOP_PERF=$(cat lighthouse_results/desktop-report.json | jq '.categories.performance.score * 100')
-          DESKTOP_ACCESS=$(cat lighthouse_results/desktop-report.json | jq '.categories.accessibility.score * 100')
-          DESKTOP_BP=$(cat lighthouse_results/desktop-report.json | jq '.categories["best-practices"].score * 100')
-          DESKTOP_SEO=$(cat lighthouse_results/desktop-report.json | jq '.categories.seo.score * 100')
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage"
           
-          # モバイルスコア取得
-          MOBILE_PERF=$(cat lighthouse_results/mobile-report.json | jq '.categories.performance.score * 100')
-          MOBILE_ACCESS=$(cat lighthouse_results/mobile-report.json | jq '.categories.accessibility.score * 100')
-          MOBILE_BP=$(cat lighthouse_results/mobile-report.json | jq '.categories["best-practices"].score * 100')
-          MOBILE_SEO=$(cat lighthouse_results/mobile-report.json | jq '.categories.seo.score * 100')
-          
-          # バッジSVG生成
-          curl -s "https://img.shields.io/badge/Lighthouse%20Desktop-${DESKTOP_PERF}%25%20${DESKTOP_ACCESS}%25%20${DESKTOP_BP}%25%20${DESKTOP_SEO}%25-brightgreen" > lighthouse_results/abta_hachian_com_desktop.svg
-          curl -s "https://img.shields.io/badge/Lighthouse%20Mobile-${MOBILE_PERF}%25%20${MOBILE_ACCESS}%25%20${MOBILE_BP}%25%20${MOBILE_SEO}%25-brightgreen" > lighthouse_results/abta_hachian_com_mobile.svg
+          # Node.jsでJSONパース・バッジ生成
+          node -e "
+            const fs = require('fs');
+            const https = require('https');
+            
+            function downloadBadge(url, filename) {
+              return new Promise((resolve, reject) => {
+                https.get(url, (res) => {
+                  let data = '';
+                  res.on('data', chunk => data += chunk);
+                  res.on('end', () => {
+                    fs.writeFileSync(filename, data);
+                    resolve();
+                  });
+                }).on('error', reject);
+              });
+            }
+            
+            async function generateBadges() {
+              try {
+                // デスクトップスコア取得
+                const desktop = JSON.parse(fs.readFileSync('./lighthouse_results/desktop-report.json', 'utf8'));
+                const dPerf = Math.round(desktop.categories.performance.score * 100);
+                const dAccess = Math.round(desktop.categories.accessibility.score * 100);
+                const dBP = Math.round(desktop.categories['best-practices'].score * 100);
+                const dSEO = Math.round(desktop.categories.seo.score * 100);
+                
+                // モバイルスコア取得
+                const mobile = JSON.parse(fs.readFileSync('./lighthouse_results/mobile-report.json', 'utf8'));
+                const mPerf = Math.round(mobile.categories.performance.score * 100);
+                const mAccess = Math.round(mobile.categories.accessibility.score * 100);
+                const mBP = Math.round(mobile.categories['best-practices'].score * 100);
+                const mSEO = Math.round(mobile.categories.seo.score * 100);
+                
+                // バッジURL生成
+                const desktopUrl = \`https://img.shields.io/badge/Desktop-\${dPerf}|\${dAccess}|\${dBP}|\${dSEO}-brightgreen?style=flat&logo=lighthouse&logoColor=white\`;
+                const mobileUrl = \`https://img.shields.io/badge/Mobile-\${mPerf}|\${mAccess}|\${mBP}|\${mSEO}-brightgreen?style=flat&logo=lighthouse&logoColor=white\`;
+                
+                // バッジダウンロード
+                await downloadBadge(desktopUrl, './lighthouse_results/abta_hachian_com_desktop.svg');
+                await downloadBadge(mobileUrl, './lighthouse_results/abta_hachian_com_mobile.svg');
+                
+                console.log('Desktop scores:', dPerf, dAccess, dBP, dSEO);
+                console.log('Mobile scores:', mPerf, mAccess, mBP, mSEO);
+                console.log('Badges generated successfully');
+              } catch (error) {
+                console.error('Error:', error);
+                process.exit(1);
+              }
+            }
+            
+            generateBadges();
+          "
 
       - name: Commit and Push
         run: |
           git config --local user.email "jamjam8an@gmail.com"
           git config --local user.name "hachian"
           git add lighthouse_results/
-          git diff --staged --quiet || git commit -m "docs: update lighthouse badges [skip ci]"
-          git push
+          if ! git diff --staged --quiet; then
+            git commit -m "docs: update lighthouse badges with actual scores [skip ci]"
+            git push
+          else
+            echo "No changes to commit"
+          fi
