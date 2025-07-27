@@ -1,0 +1,59 @@
+{
+	"name": "Astro 日本語ブログ開発環境",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+	"workspaceFolder": "/workspace",
+	
+	"features": {
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "20",
+			"nodeGypDependencies": true
+		}
+	},
+	
+	"forwardPorts": [4321],
+	"portsAttributes": {
+		"4321": {
+			"label": "Astro Development Server",
+			"onAutoForward": "openPreview",
+			"protocol": "http"
+		}
+	},
+	
+	"containerEnv": {
+		"LANG": "en_US.UTF-8",
+		"LC_ALL": "en_US.UTF-8"
+	},
+	
+	"postCreateCommand": "npm install",
+	"postStartCommand": "nohup bash -c 'npm run dev -- --host &'",
+	
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"astro-build.astro-vscode",
+				"esbenp.prettier-vscode",
+				"dbaeumer.vscode-eslint",
+				"ms-vscode.vscode-typescript-next",
+				"streetsidesoftware.code-spell-checker",
+				"yzhang.markdown-all-in-one",
+				"ms-ceintl.vscode-language-pack-ja"
+			],
+			"settings": {
+				"editor.formatOnSave": true,
+				"editor.defaultFormatter": "esbenp.prettier-vscode",
+				"files.encoding": "utf8",
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"editor.fontFamily": "'Noto Sans CJK JP', Consolas, 'Courier New', monospace",
+				"terminal.integrated.fontFamily": "'Noto Sans Mono CJK JP', monospace",
+				"astro.typescript.enabled": true,
+				"astro.format.enable": true,
+				"[astro]": {
+					"editor.defaultFormatter": "astro-build.astro-vscode"
+				},
+				"markdown.preview.fontFamily": "'Noto Sans CJK JP', -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', sans-serif"
+			}
+		}
+	},
+	
+	"remoteUser": "node"
+}
