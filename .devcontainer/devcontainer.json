@@ -1,7 +1,7 @@
 {
 	"name": "Astro 日本語ブログ開発環境",
 	"image": "mcr.microsoft.com/devcontainers/typescript-node:20",
-	"workspaceFolder": "/workspace",
+	"workspaceFolder": "/workspaces/abta",
 	
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {
