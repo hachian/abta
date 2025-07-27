@@ -2,7 +2,7 @@
   "site": {
     "title": "ABTA",
     "description": "日本語に最適化されたAstroブログテンプレート",
-    "author": "ABTA"
+    "author": "hachian"
   },
   "features": {
     "tagsEnabled": true,
@@ -24,17 +24,17 @@
     "startYear": null
   },
   "analytics": {
-    "googleAnalyticsId": "",
-    "enabled": false
+    "googleAnalyticsId": "G-NZZ01703W3",
+    "enabled": true
   },
   "socialLinks": {
     "twitter": {
-      "url": "https://twitter.com/your-username",
-      "enabled": false
+      "url": "https://twitter.com/_hachian",
+      "enabled": true
     },
     "github": {
-      "url": "https://github.com/your-username",
-      "enabled": false
+      "url": "https://github.com/hachian/abta",
+      "enabled": true
     },
     "mastodon": {
       "url": "https://mastodon.social/@your-username",
