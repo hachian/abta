@@ -11,6 +11,7 @@ export const SITE_AUTHOR = config.site.author || 'ABTA';
 export const FEATURES = {
 	TAGS_ENABLED: config.features.tagsEnabled,
 	ARCHIVE_ENABLED: config.features.archiveEnabled,
+	TOC_ENABLED: config.features.tocEnabled,
 };
 
 export const SIDEBAR_ARCHIVE_LIMIT = config.sidebar.archiveLimit;

@@ -6,7 +6,8 @@
   },
   "features": {
     "tagsEnabled": true,
-    "archiveEnabled": true
+    "archiveEnabled": true,
+    "tocEnabled": false
   },
   "sidebar": {
     "archiveLimit": 5,

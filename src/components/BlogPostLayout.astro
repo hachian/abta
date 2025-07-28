@@ -153,14 +153,31 @@ const blogPostingSchema = createBlogPostSchema(
 				max-width: 1400px;
 				margin: 0 auto;
 			}
-			.content-wrapper.no-tags {
+			/* サイドバーなし（タグ・アーカイブ両方無効） */
+			.content-wrapper.no-sidebar {
 				grid-template-columns: 9fr 3fr;
 			}
-			.content-wrapper.no-tags .main-article {
+			.content-wrapper.no-sidebar .main-article {
 				grid-column: 1;
 			}
-			.content-wrapper.no-tags .toc-sidebar {
+			.content-wrapper.no-sidebar .toc-sidebar {
 				grid-column: 2;
+			}
+			
+			/* 目次なし */
+			.content-wrapper.no-toc {
+				grid-template-columns: 2fr 7fr;
+			}
+			.content-wrapper.no-toc .main-article {
+				grid-column: 2;
+			}
+			
+			/* サイドバーなし＋目次なし */
+			.content-wrapper.no-sidebar.no-toc {
+				grid-template-columns: 1fr;
+			}
+			.content-wrapper.no-sidebar.no-toc .main-article {
+				grid-column: 1;
 			}
 			.tag-cloud-sidebar {
 				grid-column: 1;
@@ -184,6 +201,12 @@ const blogPostingSchema = createBlogPostSchema(
 				}
 				.content-wrapper {
 					grid-template-columns: 9fr 3fr;
+				}
+				.content-wrapper.no-toc {
+					grid-template-columns: 1fr;
+				}
+				.content-wrapper.no-toc .main-article {
+					grid-column: 1;
 				}
 				.tag-cloud-sidebar {
 					display: none;
@@ -255,8 +278,8 @@ const blogPostingSchema = createBlogPostSchema(
 			</div>
 			<div class="container">
 				<Breadcrumb items={breadcrumbItems} />
-				<div class={`content-wrapper ${!FEATURES.TAGS_ENABLED || !tags ? 'no-tags' : ''}`}>
-					{FEATURES.TAGS_ENABLED && tags && (
+				<div class={`content-wrapper ${(!FEATURES.TAGS_ENABLED || !tags) && !FEATURES.ARCHIVE_ENABLED ? 'no-sidebar' : ''} ${!FEATURES.TOC_ENABLED ? 'no-toc' : ''}`}>
+					{(FEATURES.TAGS_ENABLED || FEATURES.ARCHIVE_ENABLED) && (
 						<aside class="tag-cloud-sidebar">
 							<TagCloud />
 						</aside>
@@ -303,11 +326,13 @@ const blogPostingSchema = createBlogPostSchema(
 							<slot />
 						</div>
 					</article>
-					<aside class="toc-sidebar">
-						<TableOfContents headings={headings} />
-					</aside>
+					{FEATURES.TOC_ENABLED && (
+						<aside class="toc-sidebar">
+							<TableOfContents headings={headings} />
+						</aside>
+					)}
 				</div>
-				{FEATURES.TAGS_ENABLED && tags && (
+				{(FEATURES.TAGS_ENABLED || FEATURES.ARCHIVE_ENABLED) && (
 					<div class="tag-cloud-bottom">
 						<TagCloud />
 					</div>
