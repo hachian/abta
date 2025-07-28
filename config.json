@@ -7,7 +7,7 @@
   "features": {
     "tagsEnabled": true,
     "archiveEnabled": true,
-    "tocEnabled": false
+    "tocEnabled": true
   },
   "sidebar": {
     "archiveLimit": 5,
