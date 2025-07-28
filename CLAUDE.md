@@ -47,9 +47,10 @@ OKLCH色空間のCSS変数を使用：
 
 ## 機能制御
 
-`src/consts.ts`の`FEATURES`で機能ON/OFF：
-- `TAGS_ENABLED` - タグ機能
-- `ARCHIVE_ENABLED` - アーカイブ機能
+`config.json`の`features`で機能ON/OFF：
+- `tagsEnabled` - タグ機能
+- `archiveEnabled` - アーカイブ機能
+- `tocEnabled` - 目次（Table of Contents）機能
 
 ## 設定カスタマイズ
 

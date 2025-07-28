@@ -146,38 +146,30 @@ export default defineConfig({
 
 ### その他の設定
 
-#### カラーテーマ
+#### テーマカラー設定
 
-`src/styles/global.css` でOKLCH色空間を使用したカラー変数を調整：
+`config.json` でテーマカラーを設定：
 
-```css
-:root {
-  --primary: oklch(45% 0.25 262);
-  --primary-dark: oklch(25% 0.22 262);
-  --primary-light: oklch(65% 0.20 262);
-  --primary-foreground: oklch(12% 0.02 262);
-  --primary-background: oklch(97% 0.01 262);
+```json
+{
+  "theme": {
+    "primaryHue": 262  // 0-360のHue値でメインカラーを調整
+  }
 }
 ```
 
 #### 機能フラグの設定
 
-`src/consts.ts` でタグ機能とアーカイブ機能を個別にオン/オフ制御：
+`config.json` の `features` で各機能を個別にオン/オフ制御：
 
-```typescript
-export const FEATURES = {
-  TAGS_ENABLED: true,    // タグ機能の有効/無効
-  ARCHIVE_ENABLED: true, // アーカイブ機能の有効/無効
-};
-```
-
-#### ブログ画像設定
-
-`src/consts.ts` でヒーロー画像のサイズを設定：
-
-```typescript
-export const BLOG_IMAGE_WIDTH = 720;  // px
-export const BLOG_IMAGE_HEIGHT = 360; // px
+```json
+{
+  "features": {
+    "tagsEnabled": true,    // タグ機能の有効/無効
+    "archiveEnabled": true, // アーカイブ機能の有効/無効
+    "tocEnabled": false     // 目次（Table of Contents）機能の有効/無効
+  }
+}
 ```
 
 #### ソーシャルリンク設定
