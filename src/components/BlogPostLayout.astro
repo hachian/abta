@@ -54,7 +54,7 @@ const blogPostingSchema = createBlogPostSchema(
 			modifiedTime={updatedDate}
 			author={author}
 		/>
-		<script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)}></script>
+		<script is:inline type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)}></script>
 		<style>
 			main {
 				width: 100%;
