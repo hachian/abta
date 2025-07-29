@@ -144,6 +144,11 @@ const blogPostingSchema = createBlogPostSchema(
 				transform: translateY(-2px);
 				box-shadow: var(--box-shadow);
 			}
+			.blog-container {
+				max-width: 1400px;
+				margin: 0 auto;
+				padding: 0 1rem;
+			}
 			.content-wrapper {
 				display: grid;
 				grid-template-columns: 2fr 7fr 3fr;
@@ -155,21 +160,30 @@ const blogPostingSchema = createBlogPostSchema(
 			}
 			/* サイドバーなし（タグ・アーカイブ両方無効） */
 			.content-wrapper.no-sidebar {
-				grid-template-columns: 9fr 3fr;
+				grid-template-columns: 2fr 7fr 3fr;
+			}
+			.content-wrapper.no-sidebar .tag-cloud-sidebar {
+				display: none;
 			}
 			.content-wrapper.no-sidebar .main-article {
-				grid-column: 1;
+				grid-column: 2;
 			}
 			.content-wrapper.no-sidebar .toc-sidebar {
-				grid-column: 2;
+				grid-column: 3;
 			}
 			
 			/* 目次なし */
 			.content-wrapper.no-toc {
-				grid-template-columns: 2fr 7fr;
+				grid-template-columns: 2fr 7fr 3fr;
+			}
+			.content-wrapper.no-toc .tag-cloud-sidebar {
+				grid-column: 1;
 			}
 			.content-wrapper.no-toc .main-article {
 				grid-column: 2;
+			}
+			.content-wrapper.no-toc .toc-sidebar {
+				display: none;
 			}
 			
 			/* サイドバーなし＋目次なし */
@@ -208,6 +222,17 @@ const blogPostingSchema = createBlogPostSchema(
 				.content-wrapper.no-toc .main-article {
 					grid-column: 1;
 				}
+				/* サイドバーなしの場合の修正 */
+				.content-wrapper.no-sidebar {
+					grid-template-columns: 1fr;
+				}
+				.content-wrapper.no-sidebar .main-article {
+					grid-column: 1;
+				}
+				/* サイドバーなし＋目次なしの修正 */
+				.content-wrapper.no-sidebar.no-toc {
+					grid-template-columns: 1fr;
+				}
 				.tag-cloud-sidebar {
 					display: none;
 				}
@@ -224,8 +249,8 @@ const blogPostingSchema = createBlogPostSchema(
 					display: block;
 					margin-top: 2rem;
 					grid-column: 1;
-					max-width: 720px;
-					margin-left: auto;
+					width: 75%; /* 9fr / (9fr + 3fr) = 75% */
+					margin-left: 0;
 					margin-right: auto;
 				}
 			}
@@ -278,7 +303,7 @@ const blogPostingSchema = createBlogPostSchema(
 					</div>
 				)}
 			</div>
-			<div class="container">
+			<div class="blog-container">
 				<Breadcrumb items={breadcrumbItems} />
 				<div class={`content-wrapper ${(!FEATURES.TAGS_ENABLED || !tags) && !FEATURES.ARCHIVE_ENABLED ? 'no-sidebar' : ''} ${!FEATURES.TOC_ENABLED ? 'no-toc' : ''}`}>
 					{(FEATURES.TAGS_ENABLED || FEATURES.ARCHIVE_ENABLED) && (

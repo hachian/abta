@@ -188,7 +188,6 @@ main.content-page {
 /* Prose Styling */
 .prose {
 	color: var(--primary-foreground);
-	max-width: 720px;
 	margin: 0 auto;
 }
 .prose h2 {
