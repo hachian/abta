@@ -24,3 +24,6 @@ nohup.out
 
 # jetbrains setting folder
 .idea/
+
+# claude code settings
+.claude/
