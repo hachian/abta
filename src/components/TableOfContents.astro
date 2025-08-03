@@ -48,7 +48,7 @@ const TableOfContentsHeading = Astro.self;
 ---
 
 {nestedHeadings.length > 0 && (
-	<nav class="table-of-contents" aria-label="目次">
+	<nav class="table-of-contents" aria-label="目次" data-toc>
 		<div class="toc-header">
 			<h3 class="toc-title">目次</h3>
 			<button 
@@ -419,11 +419,119 @@ const TableOfContentsHeading = Astro.self;
 		});
 	}
 
+	// スクロール追従機能
+	function initScrollFollowing() {
+		// デスクトップのみで動作
+		if (window.innerWidth <= 1279) return;
+
+		const tocSidebar = document.getElementById('toc-sidebar');
+		const toc = document.querySelector('[data-toc]') as HTMLElement;
+		if (!tocSidebar || !toc) return;
+
+		// ヘッダー高さ
+		const HEADER_HEIGHT = 72;
+		let ticking = false;
+		let articleRect: DOMRect | null = null;
+
+		// 記事要素の位置を取得・更新
+		function updateArticlePosition() {
+			const mainArticle = document.querySelector('.main-article') as HTMLElement;
+			if (mainArticle) {
+				articleRect = mainArticle.getBoundingClientRect();
+			}
+		}
+
+		// 目次の位置を更新
+		function updateTocPosition() {
+			if (!articleRect) return;
+
+			const scrollY = window.scrollY;
+			const mainArticle = document.querySelector('.main-article') as HTMLElement;
+			const proseElement = mainArticle?.querySelector('.prose') as HTMLElement;
+			
+			if (!proseElement) return;
+
+			// ブログ本文（.prose）の位置を取得
+			const proseRect = proseElement.getBoundingClientRect();
+			const proseTop = proseRect.top + scrollY;
+
+			// 記事の右側に配置
+			const viewportWidth = window.innerWidth;
+			const articleRight = articleRect.right;
+			const gap = 32; // 2rem
+
+			// 目次をfixedに設定
+			tocSidebar.style.position = 'fixed';
+			tocSidebar.style.left = `${articleRight + gap}px`;
+			tocSidebar.style.visibility = 'visible';
+			tocSidebar.style.opacity = '1';
+			tocSidebar.style.transition = 'opacity 0.2s ease, visibility 0.2s ease, top 0s';
+			
+			// 右端がビューポートを超えないように調整
+			const tocWidth = tocSidebar.offsetWidth;
+			const maxLeft = viewportWidth - tocWidth - 16; // 右端に16pxの余白
+			if (articleRight + gap > maxLeft) {
+				tocSidebar.style.left = `${maxLeft}px`;
+			}
+
+			// 目次の位置を計算
+			let tocTop: number;
+			
+			// ヘッダーが表示されている場合の基本位置
+			const baseTop = scrollY > HEADER_HEIGHT ? 32 : HEADER_HEIGHT + 32; // 2rem = 32px
+			
+			// ブログ本文の開始位置に基づいて制限
+			const minTop = proseTop - scrollY;
+			
+			// 目次がブログ本文より上に行かないように制限
+			tocTop = Math.max(baseTop, minTop);
+			
+			tocSidebar.style.top = `${tocTop}px`;
+
+			// 高さの調整（ブログ本文より上にはみ出さないように）
+			const maxHeight = window.innerHeight - tocTop - 32; // 下部に2remの余白
+			tocSidebar.style.maxHeight = `${maxHeight}px`;
+		}
+
+		// スクロールイベントハンドラ
+		function onScroll() {
+			if (!ticking) {
+				requestAnimationFrame(() => {
+					updateArticlePosition();
+					updateTocPosition();
+					ticking = false;
+				});
+				ticking = true;
+			}
+		}
+
+		// リサイズイベントハンドラ
+		function onResize() {
+			updateArticlePosition();
+			updateTocPosition();
+		}
+
+		// 初期実行
+		updateArticlePosition();
+		updateTocPosition();
+
+		// イベントリスナー設定
+		window.addEventListener('scroll', onScroll);
+		window.addEventListener('resize', onResize);
+
+		// クリーンアップ
+		return () => {
+			window.removeEventListener('scroll', onScroll);
+			window.removeEventListener('resize', onResize);
+		};
+	}
+
 	// ページ読み込み時とナビゲーション時に実行
 	document.addEventListener('DOMContentLoaded', () => {
 		initTableOfContents();
 		initActiveHeadingTracking();
 		initSmoothScroll();
+		initScrollFollowing();
 	});
 
 	// Astroのナビゲーション後にも実行
@@ -431,5 +539,6 @@ const TableOfContentsHeading = Astro.self;
 		initTableOfContents();
 		initActiveHeadingTracking();
 		initSmoothScroll();
+		initScrollFollowing();
 	});
 </script>

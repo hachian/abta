@@ -202,8 +202,6 @@ const blogPostingSchema = createBlogPostSchema(
 			}
 			.toc-sidebar {
 				grid-column: 3;
-				position: sticky;
-				top: 2rem;
 				align-self: flex-start;
 			}
 			.tag-cloud-bottom {
@@ -354,7 +352,7 @@ const blogPostingSchema = createBlogPostSchema(
 						</div>
 					</article>
 					{FEATURES.TOC_ENABLED && (
-						<aside class="toc-sidebar">
+						<aside class="toc-sidebar" id="toc-sidebar">
 							<TableOfContents headings={headings} />
 						</aside>
 					)}
