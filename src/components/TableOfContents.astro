@@ -467,9 +467,10 @@ const TableOfContentsHeading = Astro.self;
 			tocSidebar.style.opacity = '1';
 			tocSidebar.style.transition = 'opacity 0.2s ease, visibility 0.2s ease, top 0s';
 			
-			// 右端がビューポートを超えないように調整
+			// 右端がビューポートを超えないように調整（右側に余白を確保）
 			const tocWidth = tocSidebar.offsetWidth;
-			const maxLeft = viewportWidth - tocWidth - 16; // 右端に16pxの余白
+			const rightMargin = 48; // 右端に3remの余白を確保
+			const maxLeft = viewportWidth - tocWidth - rightMargin;
 			if (articleRight + gap > maxLeft) {
 				tocSidebar.style.left = `${maxLeft}px`;
 			}
