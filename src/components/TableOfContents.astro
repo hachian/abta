@@ -421,8 +421,8 @@ const TableOfContentsHeading = Astro.self;
 
 	// スクロール追従機能
 	function initScrollFollowing() {
-		// デスクトップのみで動作
-		if (window.innerWidth <= 1279) return;
+		// タブレット以上（768px以上）で動作
+		if (window.innerWidth <= 767) return;
 
 		const tocSidebar = document.getElementById('toc-sidebar');
 		const toc = document.querySelector('[data-toc]') as HTMLElement;
