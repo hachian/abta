@@ -261,6 +261,41 @@ const TableOfContentsHeading = Astro.self;
 		}
 	}
 
+	/* タブレット専用調整 */
+	@media (min-width: 768px) and (max-width: 1279px) {
+		.table-of-contents {
+			padding: 1.25rem; /* 1.5rem → 1.25rem */
+			font-size: 0.875rem; /* 14px */
+		}
+		
+		.toc-title {
+			font-size: 1rem; /* 1.1rem → 1rem */
+		}
+		
+		.toc-link {
+			padding: 0.2rem 0 0.2rem 0.875rem; /* 少しコンパクトに */
+			font-size: 0.8125rem; /* 13px */
+		}
+		
+		/* タブレットでの縦線調整 */
+		.toc-list::before {
+			left: 3px; /* 4px → 3px */
+		}
+		
+		/* タブレットでの丸印調整 */
+		.toc-depth-2 > .toc-link::before {
+			width: 7px; /* 8px → 7px */
+			height: 7px;
+			left: -1px;
+		}
+		
+		.toc-depth-3 > .toc-link::before {
+			width: 3px; /* 4px → 3px */
+			height: 3px;
+			left: 1px;
+		}
+	}
+
 	/* モバイル対応（右下固定表示） */
 	@media (max-width: 767px) {
 		.table-of-contents {
@@ -458,7 +493,10 @@ const TableOfContentsHeading = Astro.self;
 			// 記事の右側に配置
 			const viewportWidth = window.innerWidth;
 			const articleRight = articleRect.right;
-			const gap = 32; // 2rem
+			
+			// タブレット向けの間隔調整
+			const isTablet = viewportWidth >= 768 && viewportWidth <= 1279;
+			const gap = isTablet ? 24 : 32; // タブレット: 1.5rem、デスクトップ: 2rem
 
 			// 目次をfixedに設定
 			tocSidebar.style.position = 'fixed';
@@ -467,19 +505,28 @@ const TableOfContentsHeading = Astro.self;
 			tocSidebar.style.opacity = '1';
 			tocSidebar.style.transition = 'opacity 0.2s ease, visibility 0.2s ease, top 0s';
 			
-			// 右端がビューポートを超えないように調整（右側に余白を確保）
+			// 右端がビューポートを超えないように調整（タブレット向け余白調整）
 			const tocWidth = tocSidebar.offsetWidth;
-			const rightMargin = 48; // 右端に3remの余白を確保
+			const rightMargin = isTablet ? 24 : 48; // タブレット: 1.5rem、デスクトップ: 3rem
 			const maxLeft = viewportWidth - tocWidth - rightMargin;
 			if (articleRight + gap > maxLeft) {
 				tocSidebar.style.left = `${maxLeft}px`;
 			}
 
+			// タブレット向けの幅制限
+			if (isTablet) {
+				const maxTocWidth = Math.min(tocWidth, 240); // 15rem以下に制限
+				tocSidebar.style.width = `${maxTocWidth}px`;
+			} else {
+				tocSidebar.style.width = ''; // デスクトップでは制限を解除
+			}
+
 			// 目次の位置を計算
 			let tocTop: number;
 			
-			// ヘッダーが表示されている場合の基本位置
-			const baseTop = scrollY > HEADER_HEIGHT ? 32 : HEADER_HEIGHT + 32; // 2rem = 32px
+			// ヘッダーが表示されている場合の基本位置（タブレット向け調整）
+			const topMargin = isTablet ? 24 : 32; // タブレット: 1.5rem、デスクトップ: 2rem
+			const baseTop = scrollY > HEADER_HEIGHT ? topMargin : HEADER_HEIGHT + topMargin;
 			
 			// ブログ本文の開始位置に基づいて制限
 			const minTop = proseTop - scrollY;
@@ -489,8 +536,9 @@ const TableOfContentsHeading = Astro.self;
 			
 			tocSidebar.style.top = `${tocTop}px`;
 
-			// 高さの調整（ブログ本文より上にはみ出さないように）
-			const maxHeight = window.innerHeight - tocTop - 32; // 下部に2remの余白
+			// 高さの調整（タブレット向け調整）
+			const bottomMargin = isTablet ? 24 : 32; // タブレット: 1.5rem、デスクトップ: 2rem
+			const maxHeight = window.innerHeight - tocTop - bottomMargin;
 			tocSidebar.style.maxHeight = `${maxHeight}px`;
 		}
 
