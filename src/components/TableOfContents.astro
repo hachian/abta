@@ -602,6 +602,9 @@ const TableOfContentsHeading = Astro.self;
 			domCache.proseElement = domCache.mainArticle.querySelector('.prose') as HTMLElement;
 		}
 		
+		// 横方向位置の固定キャッシュ（スクロール時に変動しないように）
+		let fixedHorizontalPosition: number | null = null;
+		
 		// 画面サイズキャッシュ（デバイス固有の判定を含む）
 		const viewportCache = {
 			width: window.innerWidth,
@@ -641,8 +644,42 @@ const TableOfContentsHeading = Astro.self;
 				articleRect = domCache.mainArticle.getBoundingClientRect();
 			}
 		}
+		
+		// 横方向位置を計算（リサイズ時のみ実行）
+		function calculateHorizontalPosition() {
+			if (!articleRect) return null;
+			
+			// 記事の右側に配置
+			const articleRight = articleRect.right;
+			
+			// デバイス固有の間隔調整
+			let margins = viewportCache.isTablet ? 
+				PERFORMANCE_CONFIG.MARGINS.TABLET : 
+				PERFORMANCE_CONFIG.MARGINS.DESKTOP;
+			
+			// Split View時の追加調整
+			if (viewportCache.isSplitView) {
+				margins = viewportCache.isTablet ? 16 : 24;
+			}
+			
+			const gap = margins;
+			let leftPosition = articleRight + gap;
+			
+			// 右端がビューポートを超えないように調整
+			const tocWidth = tocSidebar.offsetWidth;
+			const rightMargin = viewportCache.isTablet ? 
+				PERFORMANCE_CONFIG.MARGINS.TABLET : 
+				PERFORMANCE_CONFIG.MARGINS.DESKTOP * 1.5;
+			const maxLeft = viewportCache.width - tocWidth - rightMargin;
+			
+			if (leftPosition > maxLeft) {
+				leftPosition = maxLeft;
+			}
+			
+			return leftPosition;
+		}
 
-		// 目次の位置を更新
+		// 目次の位置を更新（縦方向位置のみ、横方向は固定）
 		function updateTocPosition() {
 			// モバイルレイアウトの場合はスクロール追従を行わない
 			if (viewportCache.layoutMode === 'mobile') {
@@ -659,7 +696,14 @@ const TableOfContentsHeading = Astro.self;
 				return;
 			}
 
-			if (!articleRect || !domCache.proseElement) return;
+			if (!domCache.proseElement) return;
+			
+			// 横方向位置が未計算の場合のみ計算
+			if (fixedHorizontalPosition === null) {
+				fixedHorizontalPosition = calculateHorizontalPosition();
+			}
+			
+			if (fixedHorizontalPosition === null) return;
 
 			const scrollY = window.scrollY;
 			
@@ -667,54 +711,17 @@ const TableOfContentsHeading = Astro.self;
 			const proseRect = domCache.proseElement.getBoundingClientRect();
 			const proseTop = proseRect.top + scrollY;
 
-			// 記事の右側に配置（キャッシュされた値を使用）
-			const articleRight = articleRect.right;
-			
-			// デバイス固有の間隔調整
-			let margins = viewportCache.isTablet ? 
-				PERFORMANCE_CONFIG.MARGINS.TABLET : 
-				PERFORMANCE_CONFIG.MARGINS.DESKTOP;
-			
-			// Split View時の追加調整
-			if (viewportCache.isSplitView) {
-				margins = viewportCache.isTablet ? 16 : 24;
-			}
-			
-			const gap = margins;
-
-			// 目次をfixedに設定
+			// 基本スタイルの設定（横方向位置は固定値を使用）
 			tocSidebar.style.position = 'fixed';
-			tocSidebar.style.left = `${articleRight + gap}px`;
+			tocSidebar.style.left = `${fixedHorizontalPosition}px`;
 			tocSidebar.style.visibility = 'visible';
 			tocSidebar.style.opacity = '1';
 			tocSidebar.style.transition = 'opacity 0.2s ease, visibility 0.2s ease, top 0s';
-			
-			// 右端がビューポートを超えないように調整（設定値を使用）
-			const tocWidth = tocSidebar.offsetWidth;
-			const rightMargin = viewportCache.isTablet ? 
-				PERFORMANCE_CONFIG.MARGINS.TABLET : 
-				PERFORMANCE_CONFIG.MARGINS.DESKTOP * 1.5; // デスクトップは3rem相当
-			const maxLeft = viewportCache.width - tocWidth - rightMargin;
-			if (articleRight + gap > maxLeft) {
-				tocSidebar.style.left = `${maxLeft}px`;
-			}
 
-			// デバイス固有の幅制限
-			if (viewportCache.isTablet) {
-				const maxTocWidth = Math.min(tocWidth, PERFORMANCE_CONFIG.THRESHOLDS.TOC_MAX_WIDTH);
-				tocSidebar.style.width = `${maxTocWidth}px`;
-			} else if (viewportCache.isMultiWindow) {
-				// Androidマルチウィンドウでは更に制限
-				const maxTocWidth = Math.min(tocWidth, 200);
-				tocSidebar.style.width = `${maxTocWidth}px`;
-			} else {
-				tocSidebar.style.width = ''; // デスクトップでは制限を解除
-			}
-
-			// 目次の位置を計算
+			// 縦方向位置の計算
 			let tocTop: number;
 			
-			// ヘッダーが表示されている場合の基本位置（設定値を使用）
+			// ヘッダーが表示されている場合の基本位置
 			const topMargin = viewportCache.isTablet ? 
 				PERFORMANCE_CONFIG.MARGINS.TABLET : 
 				PERFORMANCE_CONFIG.MARGINS.DESKTOP;
@@ -730,19 +737,41 @@ const TableOfContentsHeading = Astro.self;
 			
 			tocSidebar.style.top = `${tocTop}px`;
 
-			// 高さの調整（設定値を使用）
+			// 高さの調整
 			const bottomMargin = viewportCache.isTablet ? 
 				PERFORMANCE_CONFIG.MARGINS.TABLET : 
 				PERFORMANCE_CONFIG.MARGINS.DESKTOP;
 			const maxHeight = window.innerHeight - tocTop - bottomMargin;
 			tocSidebar.style.maxHeight = `${maxHeight}px`;
 		}
+		
+		// 目次の完全再配置（リサイズ時のみ実行）
+		function repositionToc() {
+			// 横方向位置を再計算
+			fixedHorizontalPosition = calculateHorizontalPosition();
+			
+			// デバイス固有の幅制限
+			if (viewportCache.isTablet) {
+				const tocWidth = tocSidebar.offsetWidth;
+				const maxTocWidth = Math.min(tocWidth, PERFORMANCE_CONFIG.THRESHOLDS.TOC_MAX_WIDTH);
+				tocSidebar.style.width = `${maxTocWidth}px`;
+			} else if (viewportCache.isMultiWindow) {
+				// Androidマルチウィンドウでは更に制限
+				const tocWidth = tocSidebar.offsetWidth;
+				const maxTocWidth = Math.min(tocWidth, 200);
+				tocSidebar.style.width = `${maxTocWidth}px`;
+			} else {
+				tocSidebar.style.width = ''; // デスクトップでは制限を解除
+			}
+			
+			// 縦方向位置も更新
+			updateTocPosition();
+		}
 
-		// スクロールイベントハンドラ
+		// スクロールイベントハンドラ（縦方向位置のみ更新）
 		function onScroll() {
 			if (!ticking) {
 				requestAnimationFrame(() => {
-					updateArticlePosition();
 					updateTocPosition();
 					ticking = false;
 				});
@@ -758,17 +787,14 @@ const TableOfContentsHeading = Astro.self;
 			if (hasChanged) {
 				// レイアウトモードが変更された場合
 				if (oldLayoutMode !== viewportCache.layoutMode) {
+					// 横方向位置キャッシュをリセット
+					fixedHorizontalPosition = null;
+					
 					// mobile→tablet/desktop への変更時
 					if (oldLayoutMode === 'mobile' && viewportCache.layoutMode !== 'mobile') {
-						// スクロール追従機能を有効化
+						// スクロール追従機能を有効化（完全再配置）
 						updateArticlePosition();
-						updateTocPosition();
-						// 目次の表示を復元
-						if (tocSidebar) {
-							tocSidebar.style.position = 'fixed';
-							tocSidebar.style.visibility = 'visible';
-							tocSidebar.style.opacity = '1';
-						}
+						repositionToc();
 					}
 					// tablet/desktop→mobile への変更時
 					else if (oldLayoutMode !== 'mobile' && viewportCache.layoutMode === 'mobile') {
@@ -782,17 +808,19 @@ const TableOfContentsHeading = Astro.self;
 						}
 					}
 				}
-				// 同じレイアウトモード内での変更
+				// 同じレイアウトモード内でのリサイズ
 				else {
+					// 横方向位置キャッシュをリセット
+					fixedHorizontalPosition = null;
 					updateArticlePosition();
-					updateTocPosition();
+					repositionToc();
 				}
 			}
 		}
 
 		// 初期実行
 		updateArticlePosition();
-		updateTocPosition();
+		repositionToc();
 
 		// 画面回転ハンドラーの初期化
 		OrientationHandler.init(() => {
@@ -802,17 +830,14 @@ const TableOfContentsHeading = Astro.self;
 			if (hasChanged) {
 				// レイアウトモードが変更された場合は完全に再初期化
 				if (oldLayoutMode !== viewportCache.layoutMode) {
+					// 横方向位置キャッシュをリセット
+					fixedHorizontalPosition = null;
+					
 					// mobile→tablet/desktop への変更時は新しく初期化
 					if (oldLayoutMode === 'mobile' && viewportCache.layoutMode !== 'mobile') {
-						// スクロール追従機能を再開
+						// スクロール追従機能を再開（完全再配置）
 						updateArticlePosition();
-						updateTocPosition();
-						// 目次の表示を復元
-						if (tocSidebar) {
-							tocSidebar.style.position = 'fixed';
-							tocSidebar.style.visibility = 'visible';
-							tocSidebar.style.opacity = '1';
-						}
+						repositionToc();
 					}
 					// tablet/desktop→mobile への変更時は無効化
 					else if (oldLayoutMode !== 'mobile' && viewportCache.layoutMode === 'mobile') {
@@ -830,8 +855,10 @@ const TableOfContentsHeading = Astro.self;
 				}
 				// 同じレイアウトモード内での変更は通常の更新
 				else {
+					// 横方向位置キャッシュをリセット
+					fixedHorizontalPosition = null;
 					updateArticlePosition();
-					updateTocPosition();
+					repositionToc();
 				}
 			}
 		});
