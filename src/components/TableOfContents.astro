@@ -456,6 +456,9 @@ const TableOfContentsHeading = Astro.self;
 
 	// スクロール追従機能
 	function initScrollFollowing() {
+		// 軽量エラー状態管理
+		let tocMode = 0; // 0=normal, 1=fallback, 2=disabled
+		
 		// パフォーマンス設定
 		const PERFORMANCE_CONFIG = {
 			BREAKPOINTS: {
@@ -582,30 +585,37 @@ const TableOfContentsHeading = Astro.self;
 			}
 		};
 		
-		// レイアウトモードの判定を改善
-		const layoutMode = DeviceDetector.getLayoutMode(window.innerWidth);
-
+		// 軽量DOM検証（必要最小限）
 		const tocSidebar = document.getElementById('toc-sidebar');
-		const toc = document.querySelector('[data-toc]') as HTMLElement;
-		if (!tocSidebar || !toc) return;
+		const mainArticle = document.querySelector('.main-article');
+		const proseElement = mainArticle?.querySelector('.prose');
+		
+		if (!tocSidebar || !mainArticle || !proseElement) {
+			return; // 軽量終了
+		}
+
+		// レイアウトモードの判定
+		const layoutMode = DeviceDetector.getLayoutMode(window.innerWidth);
 		let ticking = false;
 		let articleRect: DOMRect | null = null;
 		
-		// DOM要素キャッシュ（パフォーマンス最適化）
-		const domCache = {
-			mainArticle: document.querySelector('.main-article') as HTMLElement,
-			proseElement: null as HTMLElement | null
-		};
+		// モバイルの場合は早期終了
+		if (layoutMode === 'mobile') return;
 		
-		// 初期化時にproseElementもキャッシュ
-		if (domCache.mainArticle) {
-			domCache.proseElement = domCache.mainArticle.querySelector('.prose') as HTMLElement;
+		// 短い記事チェック（軽量）
+		if (mainArticle.offsetHeight < window.innerHeight * 0.5) {
+			return;
 		}
 		
-		// 横方向位置の固定キャッシュ（スクロール時に変動しないように）
-		let fixedHorizontalPosition: number | null = null;
+		// 見出し存在チェック（軽量）
+		if (document.querySelectorAll('[data-toc-link]').length === 0) {
+			return;
+		}
 		
-		// 画面サイズキャッシュ（デバイス固有の判定を含む）
+		// 横方向位置キャッシュ
+		let fixedHorizontalPosition = null;
+		
+		// 軽量ビューポートキャッシュ
 		const viewportCache = {
 			width: window.innerWidth,
 			layoutMode: layoutMode,
@@ -613,205 +623,164 @@ const TableOfContentsHeading = Astro.self;
 			isMultiWindow: DeviceDetector.isMultiWindow(),
 			
 			get isTablet() { 
-				// デバイス固有の判定を含める
 				return this.layoutMode === 'tablet';
 			},
 			
 			update() {
 				const newWidth = window.innerWidth;
 				const newLayoutMode = DeviceDetector.getLayoutMode(newWidth);
-				const newSplitView = DeviceDetector.isSplitView();
-				const newMultiWindow = DeviceDetector.isMultiWindow();
 				
-				if (newWidth !== this.width || 
-				    newLayoutMode !== this.layoutMode ||
-				    newSplitView !== this.isSplitView ||
-				    newMultiWindow !== this.isMultiWindow) {
-					
+				if (newWidth !== this.width || newLayoutMode !== this.layoutMode) {
 					this.width = newWidth;
 					this.layoutMode = newLayoutMode;
-					this.isSplitView = newSplitView;
-					this.isMultiWindow = newMultiWindow;
+					this.isSplitView = DeviceDetector.isSplitView();
+					this.isMultiWindow = DeviceDetector.isMultiWindow();
 					return true;
 				}
 				return false;
 			}
 		};
 
-		// 記事要素の位置を取得・更新
+		// 記事要素の位置を取得・更新（軽量版）
 		function updateArticlePosition() {
-			if (domCache.mainArticle) {
-				articleRect = domCache.mainArticle.getBoundingClientRect();
+			if (mainArticle) {
+				try {
+					articleRect = mainArticle.getBoundingClientRect();
+				} catch {
+					articleRect = null;
+				}
 			}
 		}
 		
-		// 横方向位置を計算（リサイズ時のみ実行）
+		// 横方向位置を計算（軽量版）
 		function calculateHorizontalPosition() {
-			if (!articleRect) return null;
+			if (!articleRect?.right) return null;
 			
-			// 記事の右側に配置
-			const articleRight = articleRect.right;
-			
-			// デバイス固有の間隔調整
-			let margins = viewportCache.isTablet ? 
+			const margins = viewportCache.isTablet ? 
 				PERFORMANCE_CONFIG.MARGINS.TABLET : 
 				PERFORMANCE_CONFIG.MARGINS.DESKTOP;
+				
+			// Split View時の調整
+			const gap = viewportCache.isSplitView ? 
+				(viewportCache.isTablet ? 16 : 24) : margins;
 			
-			// Split View時の追加調整
-			if (viewportCache.isSplitView) {
-				margins = viewportCache.isTablet ? 16 : 24;
-			}
+			const leftPosition = articleRect.right + gap;
 			
-			const gap = margins;
-			let leftPosition = articleRight + gap;
-			
-			// 右端がビューポートを超えないように調整
-			const tocWidth = tocSidebar.offsetWidth;
+			// 右端チェック
+			const tocWidth = tocSidebar?.offsetWidth || 240;
 			const rightMargin = viewportCache.isTablet ? 
 				PERFORMANCE_CONFIG.MARGINS.TABLET : 
 				PERFORMANCE_CONFIG.MARGINS.DESKTOP * 1.5;
 			const maxLeft = viewportCache.width - tocWidth - rightMargin;
 			
-			if (leftPosition > maxLeft) {
-				leftPosition = maxLeft;
-			}
-			
-			return leftPosition;
+			return leftPosition > maxLeft ? maxLeft : leftPosition;
 		}
 
-		// 目次の位置を更新（縦方向位置のみ、横方向は固定）
+		// 目次の位置を更新（軽量版）
 		function updateTocPosition() {
-			// モバイルレイアウトの場合はスクロール追従を行わない
-			if (viewportCache.layoutMode === 'mobile') {
-				// モバイル用のスタイルをクリアしてCSSに任せる
-				if (tocSidebar) {
-					tocSidebar.style.position = '';
-					tocSidebar.style.left = '';
-					tocSidebar.style.top = '';
-					tocSidebar.style.width = '';
-					tocSidebar.style.maxHeight = '';
-					tocSidebar.style.visibility = '';
-					tocSidebar.style.opacity = '';
-				}
+			if (tocMode === 2 || viewportCache.layoutMode === 'mobile') return;
+			
+			if (!proseElement || !tocSidebar) {
+				tocMode = 2;
 				return;
 			}
-
-			if (!domCache.proseElement) return;
 			
-			// 横方向位置が未計算の場合のみ計算
-			if (fixedHorizontalPosition === null) {
-				fixedHorizontalPosition = calculateHorizontalPosition();
+			try {
+				// 横方向位置計算
+				if (fixedHorizontalPosition === null) {
+					fixedHorizontalPosition = calculateHorizontalPosition();
+				}
+				
+				if (fixedHorizontalPosition === null) return;
+				
+				const scrollY = window.scrollY || 0;
+				const proseRect = proseElement.getBoundingClientRect();
+				
+				if (!proseRect) return;
+				
+				const proseTop = proseRect.top + scrollY;
+				
+				// スタイル設定（バッチ処理）
+				const topMargin = viewportCache.isTablet ? 24 : 32;
+				const baseTop = scrollY > 72 ? topMargin : 72 + topMargin;
+				const tocTop = Math.max(baseTop, proseTop - scrollY);
+				const maxHeight = window.innerHeight - tocTop - topMargin;
+				
+				Object.assign(tocSidebar.style, {
+					position: 'fixed',
+					left: `${fixedHorizontalPosition}px`,
+					top: `${tocTop}px`,
+					maxHeight: `${maxHeight}px`,
+					visibility: 'visible',
+					opacity: '1'
+				});
+				
+			} catch {
+				tocMode = 1; // フォールバックモード
 			}
-			
-			if (fixedHorizontalPosition === null) return;
-
-			const scrollY = window.scrollY;
-			
-			// ブログ本文（.prose）の位置を取得
-			const proseRect = domCache.proseElement.getBoundingClientRect();
-			const proseTop = proseRect.top + scrollY;
-
-			// 基本スタイルの設定（横方向位置は固定値を使用）
-			tocSidebar.style.position = 'fixed';
-			tocSidebar.style.left = `${fixedHorizontalPosition}px`;
-			tocSidebar.style.visibility = 'visible';
-			tocSidebar.style.opacity = '1';
-			tocSidebar.style.transition = 'opacity 0.2s ease, visibility 0.2s ease, top 0s';
-
-			// 縦方向位置の計算
-			let tocTop: number;
-			
-			// ヘッダーが表示されている場合の基本位置
-			const topMargin = viewportCache.isTablet ? 
-				PERFORMANCE_CONFIG.MARGINS.TABLET : 
-				PERFORMANCE_CONFIG.MARGINS.DESKTOP;
-			const baseTop = scrollY > PERFORMANCE_CONFIG.THRESHOLDS.HEADER_HEIGHT ? 
-				topMargin : 
-				PERFORMANCE_CONFIG.THRESHOLDS.HEADER_HEIGHT + topMargin;
-			
-			// ブログ本文の開始位置に基づいて制限
-			const minTop = proseTop - scrollY;
-			
-			// 目次がブログ本文より上に行かないように制限
-			tocTop = Math.max(baseTop, minTop);
-			
-			tocSidebar.style.top = `${tocTop}px`;
-
-			// 高さの調整
-			const bottomMargin = viewportCache.isTablet ? 
-				PERFORMANCE_CONFIG.MARGINS.TABLET : 
-				PERFORMANCE_CONFIG.MARGINS.DESKTOP;
-			const maxHeight = window.innerHeight - tocTop - bottomMargin;
-			tocSidebar.style.maxHeight = `${maxHeight}px`;
 		}
 		
-		// 目次の完全再配置（リサイズ時のみ実行）
+		// 目次の完全再配置（軽量版）
 		function repositionToc() {
-			// 横方向位置を再計算
-			fixedHorizontalPosition = calculateHorizontalPosition();
+			fixedHorizontalPosition = null; // リセットして再計算
 			
-			// デバイス固有の幅制限
-			if (viewportCache.isTablet) {
-				const tocWidth = tocSidebar.offsetWidth;
-				const maxTocWidth = Math.min(tocWidth, PERFORMANCE_CONFIG.THRESHOLDS.TOC_MAX_WIDTH);
-				tocSidebar.style.width = `${maxTocWidth}px`;
-			} else if (viewportCache.isMultiWindow) {
-				// Androidマルチウィンドウでは更に制限
-				const tocWidth = tocSidebar.offsetWidth;
-				const maxTocWidth = Math.min(tocWidth, 200);
-				tocSidebar.style.width = `${maxTocWidth}px`;
-			} else {
-				tocSidebar.style.width = ''; // デスクトップでは制限を解除
+			// 幅制限
+			if (tocSidebar) {
+				if (viewportCache.isTablet) {
+					const tocWidth = tocSidebar.offsetWidth || 240;
+					const maxTocWidth = Math.min(tocWidth, 240);
+					tocSidebar.style.width = `${maxTocWidth}px`;
+				} else if (viewportCache.isMultiWindow) {
+					const tocWidth = tocSidebar.offsetWidth || 200;
+					const maxTocWidth = Math.min(tocWidth, 200);
+					tocSidebar.style.width = `${maxTocWidth}px`;
+				} else {
+					tocSidebar.style.width = '';
+				}
 			}
 			
-			// 縦方向位置も更新
 			updateTocPosition();
 		}
 
-		// スクロールイベントハンドラ（縦方向位置のみ更新）
+		// スクロールイベントハンドラ（軽量版）
 		function onScroll() {
 			if (!ticking) {
 				requestAnimationFrame(() => {
-					updateTocPosition();
+					if (tocMode < 2) {
+						updateTocPosition();
+					}
 					ticking = false;
 				});
 				ticking = true;
 			}
 		}
 
-		// リサイズイベントハンドラ（最適化：画面サイズ変更時のみキャッシュ更新）
+		// リサイズイベントハンドラ（軽量版）
 		function onResize() {
 			const oldLayoutMode = viewportCache.layoutMode;
 			const hasChanged = viewportCache.update();
 			
 			if (hasChanged) {
-				// レイアウトモードが変更された場合
 				if (oldLayoutMode !== viewportCache.layoutMode) {
-					// 横方向位置キャッシュをリセット
-					fixedHorizontalPosition = null;
-					
-					// mobile→tablet/desktop への変更時
-					if (oldLayoutMode === 'mobile' && viewportCache.layoutMode !== 'mobile') {
-						// スクロール追従機能を有効化（完全再配置）
+					// レイアウトモード変更
+					if (viewportCache.layoutMode === 'mobile') {
+						// モバイル切り替え: スタイルクリア
+						if (tocSidebar) {
+							Object.assign(tocSidebar.style, {
+								position: '',
+								left: '',
+								top: '',
+								width: '',
+								maxHeight: ''
+							});
+						}
+					} else if (oldLayoutMode === 'mobile') {
+						// モバイルから復帰: 再初期化
 						updateArticlePosition();
 						repositionToc();
 					}
-					// tablet/desktop→mobile への変更時
-					else if (oldLayoutMode !== 'mobile' && viewportCache.layoutMode === 'mobile') {
-						// 目次の位置スタイルをクリア（モバイル用CSSに任せる）
-						if (tocSidebar) {
-							tocSidebar.style.position = '';
-							tocSidebar.style.left = '';
-							tocSidebar.style.top = '';
-							tocSidebar.style.width = '';
-							tocSidebar.style.maxHeight = '';
-						}
-					}
-				}
-				// 同じレイアウトモード内でのリサイズ
-				else {
-					// 横方向位置キャッシュをリセット
-					fixedHorizontalPosition = null;
+				} else {
+					// 同一モード内リサイズ
 					updateArticlePosition();
 					repositionToc();
 				}
@@ -822,44 +791,12 @@ const TableOfContentsHeading = Astro.self;
 		updateArticlePosition();
 		repositionToc();
 
-		// 画面回転ハンドラーの初期化
+		// 画面回転ハンドラーの初期化（軽量版）
 		OrientationHandler.init(() => {
-			const oldLayoutMode = viewportCache.layoutMode;
 			const hasChanged = viewportCache.update();
-			
 			if (hasChanged) {
-				// レイアウトモードが変更された場合は完全に再初期化
-				if (oldLayoutMode !== viewportCache.layoutMode) {
-					// 横方向位置キャッシュをリセット
-					fixedHorizontalPosition = null;
-					
-					// mobile→tablet/desktop への変更時は新しく初期化
-					if (oldLayoutMode === 'mobile' && viewportCache.layoutMode !== 'mobile') {
-						// スクロール追従機能を再開（完全再配置）
-						updateArticlePosition();
-						repositionToc();
-					}
-					// tablet/desktop→mobile への変更時は無効化
-					else if (oldLayoutMode !== 'mobile' && viewportCache.layoutMode === 'mobile') {
-						// 目次の位置スタイルをクリア（モバイル用CSSに任せる）
-						if (tocSidebar) {
-							tocSidebar.style.position = '';
-							tocSidebar.style.left = '';
-							tocSidebar.style.top = '';
-							tocSidebar.style.width = '';
-							tocSidebar.style.maxHeight = '';
-							tocSidebar.style.visibility = '';
-							tocSidebar.style.opacity = '';
-						}
-					}
-				}
-				// 同じレイアウトモード内での変更は通常の更新
-				else {
-					// 横方向位置キャッシュをリセット
-					fixedHorizontalPosition = null;
-					updateArticlePosition();
-					repositionToc();
-				}
+				updateArticlePosition();
+				repositionToc();
 			}
 		});
 		
