@@ -456,47 +456,86 @@ const TableOfContentsHeading = Astro.self;
 
 	// スクロール追従機能
 	function initScrollFollowing() {
-		// タブレット以上（768px以上）で動作
-		if (window.innerWidth <= 767) return;
+		// パフォーマンス設定
+		const PERFORMANCE_CONFIG = {
+			BREAKPOINTS: {
+				MOBILE_MAX: 767,
+				TABLET_MIN: 768,
+				TABLET_MAX: 1279,
+				DESKTOP_MIN: 1280
+			},
+			MARGINS: {
+				TABLET: 24,    // 1.5rem
+				DESKTOP: 32    // 2rem
+			},
+			THRESHOLDS: {
+				TOC_MAX_WIDTH: 240,  // 15rem
+				HEADER_HEIGHT: 72
+			}
+		};
+		
+		// タブレット以上で動作
+		if (window.innerWidth <= PERFORMANCE_CONFIG.BREAKPOINTS.MOBILE_MAX) return;
 
 		const tocSidebar = document.getElementById('toc-sidebar');
 		const toc = document.querySelector('[data-toc]') as HTMLElement;
 		if (!tocSidebar || !toc) return;
-
-		// ヘッダー高さ
-		const HEADER_HEIGHT = 72;
 		let ticking = false;
 		let articleRect: DOMRect | null = null;
+		
+		// DOM要素キャッシュ（パフォーマンス最適化）
+		const domCache = {
+			mainArticle: document.querySelector('.main-article') as HTMLElement,
+			proseElement: null as HTMLElement | null
+		};
+		
+		// 初期化時にproseElementもキャッシュ
+		if (domCache.mainArticle) {
+			domCache.proseElement = domCache.mainArticle.querySelector('.prose') as HTMLElement;
+		}
+		
+		// 画面サイズキャッシュ（不要な再計算防止）
+		const viewportCache = {
+			width: window.innerWidth,
+			get isTablet() { 
+				return this.width >= PERFORMANCE_CONFIG.BREAKPOINTS.TABLET_MIN && 
+					   this.width <= PERFORMANCE_CONFIG.BREAKPOINTS.TABLET_MAX; 
+			},
+			update() {
+				const newWidth = window.innerWidth;
+				if (newWidth !== this.width) {
+					this.width = newWidth;
+					return true; // 変更あり
+				}
+				return false; // 変更なし
+			}
+		};
 
 		// 記事要素の位置を取得・更新
 		function updateArticlePosition() {
-			const mainArticle = document.querySelector('.main-article') as HTMLElement;
-			if (mainArticle) {
-				articleRect = mainArticle.getBoundingClientRect();
+			if (domCache.mainArticle) {
+				articleRect = domCache.mainArticle.getBoundingClientRect();
 			}
 		}
 
 		// 目次の位置を更新
 		function updateTocPosition() {
-			if (!articleRect) return;
+			if (!articleRect || !domCache.proseElement) return;
 
 			const scrollY = window.scrollY;
-			const mainArticle = document.querySelector('.main-article') as HTMLElement;
-			const proseElement = mainArticle?.querySelector('.prose') as HTMLElement;
 			
-			if (!proseElement) return;
-
 			// ブログ本文（.prose）の位置を取得
-			const proseRect = proseElement.getBoundingClientRect();
+			const proseRect = domCache.proseElement.getBoundingClientRect();
 			const proseTop = proseRect.top + scrollY;
 
-			// 記事の右側に配置
-			const viewportWidth = window.innerWidth;
+			// 記事の右側に配置（キャッシュされた値を使用）
 			const articleRight = articleRect.right;
 			
-			// タブレット向けの間隔調整
-			const isTablet = viewportWidth >= 768 && viewportWidth <= 1279;
-			const gap = isTablet ? 24 : 32; // タブレット: 1.5rem、デスクトップ: 2rem
+			// タブレット向けの間隔調整（設定値とキャッシュを使用）
+			const margins = viewportCache.isTablet ? 
+				PERFORMANCE_CONFIG.MARGINS.TABLET : 
+				PERFORMANCE_CONFIG.MARGINS.DESKTOP;
+			const gap = margins;
 
 			// 目次をfixedに設定
 			tocSidebar.style.position = 'fixed';
@@ -505,17 +544,19 @@ const TableOfContentsHeading = Astro.self;
 			tocSidebar.style.opacity = '1';
 			tocSidebar.style.transition = 'opacity 0.2s ease, visibility 0.2s ease, top 0s';
 			
-			// 右端がビューポートを超えないように調整（タブレット向け余白調整）
+			// 右端がビューポートを超えないように調整（設定値を使用）
 			const tocWidth = tocSidebar.offsetWidth;
-			const rightMargin = isTablet ? 24 : 48; // タブレット: 1.5rem、デスクトップ: 3rem
-			const maxLeft = viewportWidth - tocWidth - rightMargin;
+			const rightMargin = viewportCache.isTablet ? 
+				PERFORMANCE_CONFIG.MARGINS.TABLET : 
+				PERFORMANCE_CONFIG.MARGINS.DESKTOP * 1.5; // デスクトップは3rem相当
+			const maxLeft = viewportCache.width - tocWidth - rightMargin;
 			if (articleRight + gap > maxLeft) {
 				tocSidebar.style.left = `${maxLeft}px`;
 			}
 
-			// タブレット向けの幅制限
-			if (isTablet) {
-				const maxTocWidth = Math.min(tocWidth, 240); // 15rem以下に制限
+			// タブレット向けの幅制限（設定値を使用）
+			if (viewportCache.isTablet) {
+				const maxTocWidth = Math.min(tocWidth, PERFORMANCE_CONFIG.THRESHOLDS.TOC_MAX_WIDTH);
 				tocSidebar.style.width = `${maxTocWidth}px`;
 			} else {
 				tocSidebar.style.width = ''; // デスクトップでは制限を解除
@@ -524,9 +565,13 @@ const TableOfContentsHeading = Astro.self;
 			// 目次の位置を計算
 			let tocTop: number;
 			
-			// ヘッダーが表示されている場合の基本位置（タブレット向け調整）
-			const topMargin = isTablet ? 24 : 32; // タブレット: 1.5rem、デスクトップ: 2rem
-			const baseTop = scrollY > HEADER_HEIGHT ? topMargin : HEADER_HEIGHT + topMargin;
+			// ヘッダーが表示されている場合の基本位置（設定値を使用）
+			const topMargin = viewportCache.isTablet ? 
+				PERFORMANCE_CONFIG.MARGINS.TABLET : 
+				PERFORMANCE_CONFIG.MARGINS.DESKTOP;
+			const baseTop = scrollY > PERFORMANCE_CONFIG.THRESHOLDS.HEADER_HEIGHT ? 
+				topMargin : 
+				PERFORMANCE_CONFIG.THRESHOLDS.HEADER_HEIGHT + topMargin;
 			
 			// ブログ本文の開始位置に基づいて制限
 			const minTop = proseTop - scrollY;
@@ -536,8 +581,10 @@ const TableOfContentsHeading = Astro.self;
 			
 			tocSidebar.style.top = `${tocTop}px`;
 
-			// 高さの調整（タブレット向け調整）
-			const bottomMargin = isTablet ? 24 : 32; // タブレット: 1.5rem、デスクトップ: 2rem
+			// 高さの調整（設定値を使用）
+			const bottomMargin = viewportCache.isTablet ? 
+				PERFORMANCE_CONFIG.MARGINS.TABLET : 
+				PERFORMANCE_CONFIG.MARGINS.DESKTOP;
 			const maxHeight = window.innerHeight - tocTop - bottomMargin;
 			tocSidebar.style.maxHeight = `${maxHeight}px`;
 		}
@@ -554,19 +601,23 @@ const TableOfContentsHeading = Astro.self;
 			}
 		}
 
-		// リサイズイベントハンドラ
+		// リサイズイベントハンドラ（最適化：画面サイズ変更時のみキャッシュ更新）
 		function onResize() {
-			updateArticlePosition();
-			updateTocPosition();
+			const hasChanged = viewportCache.update();
+			if (hasChanged) {
+				// 画面サイズが変更された場合のみ再計算
+				updateArticlePosition();
+				updateTocPosition();
+			}
 		}
 
 		// 初期実行
 		updateArticlePosition();
 		updateTocPosition();
 
-		// イベントリスナー設定
-		window.addEventListener('scroll', onScroll);
-		window.addEventListener('resize', onResize);
+		// イベントリスナー設定（passive: true でパフォーマンス最適化）
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', onResize, { passive: true });
 
 		// クリーンアップ
 		return () => {
