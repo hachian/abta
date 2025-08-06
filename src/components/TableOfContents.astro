@@ -474,8 +474,119 @@ const TableOfContentsHeading = Astro.self;
 			}
 		};
 		
-		// タブレット以上で動作
-		if (window.innerWidth <= PERFORMANCE_CONFIG.BREAKPOINTS.MOBILE_MAX) return;
+		// デバイス検出システム
+		const DeviceDetector = {
+			// iPad検出（iOS 13以降も対応）
+			isIPad(): boolean {
+				return /iPad/.test(navigator.userAgent) || 
+				       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+			},
+			
+			// Split View検出
+			isSplitView(): boolean {
+				if (!this.isIPad()) return false;
+				// Split Viewでは画面幅が物理画面幅より小さくなる
+				return window.innerWidth < screen.width;
+			},
+			
+			// Androidデバイス検出
+			isAndroid(): boolean {
+				return /Android/.test(navigator.userAgent);
+			},
+			
+			// マルチウィンドウ検出（Android）
+			isMultiWindow(): boolean {
+				if (!this.isAndroid()) return false;
+				const heightRatio = window.innerHeight / screen.height;
+				return heightRatio < 0.9;
+			},
+			
+			// タッチデバイス検出
+			isTouchDevice(): boolean {
+				return 'ontouchstart' in window || 
+				       navigator.maxTouchPoints > 0;
+			},
+			
+			// 適切なレイアウトモードを取得
+			getLayoutMode(width: number): 'mobile' | 'tablet' | 'desktop' {
+				// Split ViewやマルチウィンドウでモバイルレイアウトにすべきiPad/Android
+				if (this.isSplitView() && width < 768) {
+					return 'mobile';
+				}
+				if (this.isMultiWindow() && width < 768) {
+					return 'mobile';
+				}
+				
+				// 通常の判定
+				if (width <= 767) return 'mobile';
+				if (width <= 1279) return 'tablet';
+				return 'desktop';
+			}
+		};
+		
+		// 画面回転ハンドラー
+		const OrientationHandler = {
+			lastScrollY: 0,
+			lastActiveElement: null as Element | null,
+			
+			// 初期化
+			init(updateCallback: Function) {
+				// 画面回転イベントのリスナー登録
+				if ('orientation' in window) {
+					window.addEventListener('orientationchange', () => {
+						this.handleOrientationChange(updateCallback);
+					});
+				}
+				
+				// 代替: リサイズイベントで画面向き変更を検出
+				let lastOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+				window.addEventListener('resize', () => {
+					const currentOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+					if (currentOrientation !== lastOrientation) {
+						lastOrientation = currentOrientation;
+						this.handleOrientationChange(updateCallback);
+					}
+				}, { passive: true });
+			},
+			
+			// 画面回転時の処理
+			handleOrientationChange(updateCallback: Function) {
+				// 現在のスクロール位置とアクティブ要素を保存
+				this.preserveState();
+				
+				// 回転完了を待つ（iOS/Androidの違いを吸収）
+				setTimeout(() => {
+					updateCallback();
+					this.restoreState();
+				}, 100);
+			},
+			
+			// 状態の保存
+			preserveState() {
+				this.lastScrollY = window.scrollY;
+				const activeHeading = document.querySelector('.toc-link.active');
+				if (activeHeading) {
+					const targetId = activeHeading.getAttribute('data-toc-link');
+					this.lastActiveElement = document.getElementById(targetId || '');
+				}
+			},
+			
+			// 状態の復元
+			restoreState() {
+				if (this.lastActiveElement) {
+					this.lastActiveElement.scrollIntoView({ block: 'start' });
+					window.scrollBy(0, -100);
+				} else {
+					window.scrollTo(0, this.lastScrollY);
+				}
+			}
+		};
+		
+		// レイアウトモードの判定を改善
+		const layoutMode = DeviceDetector.getLayoutMode(window.innerWidth);
+		
+		// モバイルレイアウトの場合は早期リターン
+		if (layoutMode === 'mobile') return;
 
 		const tocSidebar = document.getElementById('toc-sidebar');
 		const toc = document.querySelector('[data-toc]') as HTMLElement;
@@ -494,20 +605,36 @@ const TableOfContentsHeading = Astro.self;
 			domCache.proseElement = domCache.mainArticle.querySelector('.prose') as HTMLElement;
 		}
 		
-		// 画面サイズキャッシュ（不要な再計算防止）
+		// 画面サイズキャッシュ（デバイス固有の判定を含む）
 		const viewportCache = {
 			width: window.innerWidth,
+			layoutMode: layoutMode,
+			isSplitView: DeviceDetector.isSplitView(),
+			isMultiWindow: DeviceDetector.isMultiWindow(),
+			
 			get isTablet() { 
-				return this.width >= PERFORMANCE_CONFIG.BREAKPOINTS.TABLET_MIN && 
-					   this.width <= PERFORMANCE_CONFIG.BREAKPOINTS.TABLET_MAX; 
+				// デバイス固有の判定を含める
+				return this.layoutMode === 'tablet';
 			},
+			
 			update() {
 				const newWidth = window.innerWidth;
-				if (newWidth !== this.width) {
+				const newLayoutMode = DeviceDetector.getLayoutMode(newWidth);
+				const newSplitView = DeviceDetector.isSplitView();
+				const newMultiWindow = DeviceDetector.isMultiWindow();
+				
+				if (newWidth !== this.width || 
+				    newLayoutMode !== this.layoutMode ||
+				    newSplitView !== this.isSplitView ||
+				    newMultiWindow !== this.isMultiWindow) {
+					
 					this.width = newWidth;
-					return true; // 変更あり
+					this.layoutMode = newLayoutMode;
+					this.isSplitView = newSplitView;
+					this.isMultiWindow = newMultiWindow;
+					return true;
 				}
-				return false; // 変更なし
+				return false;
 			}
 		};
 
@@ -531,10 +658,16 @@ const TableOfContentsHeading = Astro.self;
 			// 記事の右側に配置（キャッシュされた値を使用）
 			const articleRight = articleRect.right;
 			
-			// タブレット向けの間隔調整（設定値とキャッシュを使用）
-			const margins = viewportCache.isTablet ? 
+			// デバイス固有の間隔調整
+			let margins = viewportCache.isTablet ? 
 				PERFORMANCE_CONFIG.MARGINS.TABLET : 
 				PERFORMANCE_CONFIG.MARGINS.DESKTOP;
+			
+			// Split View時の追加調整
+			if (viewportCache.isSplitView) {
+				margins = viewportCache.isTablet ? 16 : 24;
+			}
+			
 			const gap = margins;
 
 			// 目次をfixedに設定
@@ -554,9 +687,13 @@ const TableOfContentsHeading = Astro.self;
 				tocSidebar.style.left = `${maxLeft}px`;
 			}
 
-			// タブレット向けの幅制限（設定値を使用）
+			// デバイス固有の幅制限
 			if (viewportCache.isTablet) {
 				const maxTocWidth = Math.min(tocWidth, PERFORMANCE_CONFIG.THRESHOLDS.TOC_MAX_WIDTH);
+				tocSidebar.style.width = `${maxTocWidth}px`;
+			} else if (viewportCache.isMultiWindow) {
+				// Androidマルチウィンドウでは更に制限
+				const maxTocWidth = Math.min(tocWidth, 200);
 				tocSidebar.style.width = `${maxTocWidth}px`;
 			} else {
 				tocSidebar.style.width = ''; // デスクトップでは制限を解除
@@ -615,6 +752,43 @@ const TableOfContentsHeading = Astro.self;
 		updateArticlePosition();
 		updateTocPosition();
 
+		// 画面回転ハンドラーの初期化
+		OrientationHandler.init(() => {
+			viewportCache.update();
+			updateArticlePosition();
+			updateTocPosition();
+		});
+		
+		// タッチデバイス最適化
+		if (DeviceDetector.isTouchDevice()) {
+			// タップ領域を拡大
+			const tocLinks = document.querySelectorAll('.toc-link');
+			tocLinks.forEach(link => {
+				(link as HTMLElement).style.minHeight = '44px';
+				(link as HTMLElement).style.paddingTop = '10px';
+				(link as HTMLElement).style.paddingBottom = '10px';
+			});
+			
+			// 慣性スクロール対応
+			let isScrolling = false;
+			let scrollTimeout: number;
+			
+			window.addEventListener('scroll', () => {
+				if (!isScrolling && tocSidebar) {
+					isScrolling = true;
+					tocSidebar.style.pointerEvents = 'none';
+				}
+				
+				clearTimeout(scrollTimeout);
+				scrollTimeout = window.setTimeout(() => {
+					isScrolling = false;
+					if (tocSidebar) {
+						tocSidebar.style.pointerEvents = 'auto';
+					}
+				}, 150);
+			}, { passive: true });
+		}
+		
 		// イベントリスナー設定（passive: true でパフォーマンス最適化）
 		window.addEventListener('scroll', onScroll, { passive: true });
 		window.addEventListener('resize', onResize, { passive: true });
