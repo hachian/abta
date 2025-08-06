@@ -584,9 +584,6 @@ const TableOfContentsHeading = Astro.self;
 		
 		// レイアウトモードの判定を改善
 		const layoutMode = DeviceDetector.getLayoutMode(window.innerWidth);
-		
-		// モバイルレイアウトの場合は早期リターン
-		if (layoutMode === 'mobile') return;
 
 		const tocSidebar = document.getElementById('toc-sidebar');
 		const toc = document.querySelector('[data-toc]') as HTMLElement;
@@ -647,6 +644,21 @@ const TableOfContentsHeading = Astro.self;
 
 		// 目次の位置を更新
 		function updateTocPosition() {
+			// モバイルレイアウトの場合はスクロール追従を行わない
+			if (viewportCache.layoutMode === 'mobile') {
+				// モバイル用のスタイルをクリアしてCSSに任せる
+				if (tocSidebar) {
+					tocSidebar.style.position = '';
+					tocSidebar.style.left = '';
+					tocSidebar.style.top = '';
+					tocSidebar.style.width = '';
+					tocSidebar.style.maxHeight = '';
+					tocSidebar.style.visibility = '';
+					tocSidebar.style.opacity = '';
+				}
+				return;
+			}
+
 			if (!articleRect || !domCache.proseElement) return;
 
 			const scrollY = window.scrollY;
@@ -740,11 +752,41 @@ const TableOfContentsHeading = Astro.self;
 
 		// リサイズイベントハンドラ（最適化：画面サイズ変更時のみキャッシュ更新）
 		function onResize() {
+			const oldLayoutMode = viewportCache.layoutMode;
 			const hasChanged = viewportCache.update();
+			
 			if (hasChanged) {
-				// 画面サイズが変更された場合のみ再計算
-				updateArticlePosition();
-				updateTocPosition();
+				// レイアウトモードが変更された場合
+				if (oldLayoutMode !== viewportCache.layoutMode) {
+					// mobile→tablet/desktop への変更時
+					if (oldLayoutMode === 'mobile' && viewportCache.layoutMode !== 'mobile') {
+						// スクロール追従機能を有効化
+						updateArticlePosition();
+						updateTocPosition();
+						// 目次の表示を復元
+						if (tocSidebar) {
+							tocSidebar.style.position = 'fixed';
+							tocSidebar.style.visibility = 'visible';
+							tocSidebar.style.opacity = '1';
+						}
+					}
+					// tablet/desktop→mobile への変更時
+					else if (oldLayoutMode !== 'mobile' && viewportCache.layoutMode === 'mobile') {
+						// 目次の位置スタイルをクリア（モバイル用CSSに任せる）
+						if (tocSidebar) {
+							tocSidebar.style.position = '';
+							tocSidebar.style.left = '';
+							tocSidebar.style.top = '';
+							tocSidebar.style.width = '';
+							tocSidebar.style.maxHeight = '';
+						}
+					}
+				}
+				// 同じレイアウトモード内での変更
+				else {
+					updateArticlePosition();
+					updateTocPosition();
+				}
 			}
 		}
 
@@ -754,9 +796,44 @@ const TableOfContentsHeading = Astro.self;
 
 		// 画面回転ハンドラーの初期化
 		OrientationHandler.init(() => {
-			viewportCache.update();
-			updateArticlePosition();
-			updateTocPosition();
+			const oldLayoutMode = viewportCache.layoutMode;
+			const hasChanged = viewportCache.update();
+			
+			if (hasChanged) {
+				// レイアウトモードが変更された場合は完全に再初期化
+				if (oldLayoutMode !== viewportCache.layoutMode) {
+					// mobile→tablet/desktop への変更時は新しく初期化
+					if (oldLayoutMode === 'mobile' && viewportCache.layoutMode !== 'mobile') {
+						// スクロール追従機能を再開
+						updateArticlePosition();
+						updateTocPosition();
+						// 目次の表示を復元
+						if (tocSidebar) {
+							tocSidebar.style.position = 'fixed';
+							tocSidebar.style.visibility = 'visible';
+							tocSidebar.style.opacity = '1';
+						}
+					}
+					// tablet/desktop→mobile への変更時は無効化
+					else if (oldLayoutMode !== 'mobile' && viewportCache.layoutMode === 'mobile') {
+						// 目次の位置スタイルをクリア（モバイル用CSSに任せる）
+						if (tocSidebar) {
+							tocSidebar.style.position = '';
+							tocSidebar.style.left = '';
+							tocSidebar.style.top = '';
+							tocSidebar.style.width = '';
+							tocSidebar.style.maxHeight = '';
+							tocSidebar.style.visibility = '';
+							tocSidebar.style.opacity = '';
+						}
+					}
+				}
+				// 同じレイアウトモード内での変更は通常の更新
+				else {
+					updateArticlePosition();
+					updateTocPosition();
+				}
+			}
 		});
 		
 		// タッチデバイス最適化
